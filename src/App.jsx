@@ -25,7 +25,7 @@ function App() {
     heroTitle: 'Las Palmas',
     heroSubtitle: 'Fine Dining in the Heart of Oran',
     aboutText: 'Nestled in the vibrant heart of Oran, Las Palmas brings together the warmth of Algerian hospitality with the sophistication of Mediterranean cuisine. Our journey began with a simple vision: to create an extraordinary dining experience that celebrates the rich culinary heritage of our region.',
-    sketchfabModelId: '8f27ef5b0e2f4fabb99b3eb989b5c8c5',
+    sketchfabModelId: '900d7025f0574a768c524c323ca6b6e1',
     menuItems: [
       {
         id: 1,
