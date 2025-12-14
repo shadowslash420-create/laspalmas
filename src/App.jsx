@@ -1,4 +1,5 @@
 import { useState, createContext, useContext } from 'react'
+import { ScrollProvider } from './hooks/useScrollProgress.jsx'
 import CinematicIntro from './components/CinematicIntro'
 import Hero from './components/Hero'
 import About from './components/About'
@@ -8,6 +9,8 @@ import Reservation from './components/Reservation'
 import Footer from './components/Footer'
 import OwnerMode from './components/OwnerMode'
 import ParallaxSection from './components/ParallaxSection'
+import Scene3D from './components/Scene3D'
+import AmbientLighting from './components/AmbientLighting'
 
 export const OwnerContext = createContext({
   isOwnerMode: false,
@@ -84,26 +87,41 @@ function App() {
 
   return (
     <OwnerContext.Provider value={{ isOwnerMode, setIsOwnerMode, siteData, setSiteData }}>
-      <div className="min-h-screen bg-dark-900">
-        {!hasEntered && <CinematicIntro onEnter={handleEnter} />}
-        
-        <div className={`transition-opacity duration-1000 ${hasEntered ? 'opacity-100' : 'opacity-0'}`}>
-          <Hero />
-          <ParallaxSection speed={0.3}>
-            <About />
-          </ParallaxSection>
-          <ParallaxSection speed={0.2}>
-            <Menu />
-          </ParallaxSection>
-          <ParallaxSection speed={0.25}>
-            <Atmosphere />
-          </ParallaxSection>
-          <Reservation />
-          <Footer />
-        </div>
+      <ScrollProvider>
+        <div className="min-h-screen bg-dark-900">
+          {!hasEntered && <CinematicIntro onEnter={handleEnter} />}
+          
+          <div className={`transition-opacity duration-1000 ${hasEntered ? 'opacity-100' : 'opacity-0'}`}>
+            <Scene3D />
+            <AmbientLighting />
+            
+            <div data-section="hero">
+              <Hero />
+            </div>
+            <ParallaxSection speed={0.3}>
+              <div data-section="about">
+                <About />
+              </div>
+            </ParallaxSection>
+            <ParallaxSection speed={0.2}>
+              <div data-section="menu">
+                <Menu />
+              </div>
+            </ParallaxSection>
+            <ParallaxSection speed={0.25}>
+              <div data-section="atmosphere">
+                <Atmosphere />
+              </div>
+            </ParallaxSection>
+            <div data-section="reservation">
+              <Reservation />
+            </div>
+            <Footer />
+          </div>
 
-        <OwnerMode />
-      </div>
+          <OwnerMode />
+        </div>
+      </ScrollProvider>
     </OwnerContext.Provider>
   )
 }

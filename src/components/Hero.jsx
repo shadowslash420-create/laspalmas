@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import anime from 'animejs'
 import { useOwner } from '../App'
 import AnimatedBackground from './AnimatedBackground'
-import SketchfabEmbed from './SketchfabEmbed'
 
 const Hero = () => {
   const { siteData } = useOwner()
@@ -72,13 +71,6 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <AnimatedBackground />
-      
-      <div className="absolute inset-0 z-0">
-        <SketchfabEmbed 
-          modelId={siteData.sketchfabModelId} 
-          className="w-full h-full opacity-30"
-        />
-      </div>
 
       <div className="absolute inset-0 pointer-events-none z-10"
         style={{
