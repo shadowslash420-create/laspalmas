@@ -1,0 +1,147 @@
+Create a luxurious, welcoming, modern 3D restaurant website frontend using React (Vite) for a real restaurant located at:
+
+📍 Address: P922+7XX, Rue Patrice Lumumba, Oran, Algeria
+City: Oran
+Vibe: Elegant, warm, premium, Mediterranean–Algerian luxury
+
+Tech Stack:
+
+React + Vite
+
+anime.js for advanced animations
+
+Tailwind CSS (preferred) or CSS Modules
+
+CSS 3D transforms for depth and motion
+
+Visual Direction:
+
+Dark elegant theme with warm gold / sand / bronze accents
+
+Inspired by Oran’s Mediterranean atmosphere
+
+Premium restaurant aesthetic (luxury but not flashy)
+
+Smooth 3D motion, cinematic transitions
+
+High-end typography
+
+Animations (CRITICAL):
+
+Use anime.js for:
+
+Hero text animation with staggered letters
+
+Section reveal animations (fade + translateY + depth)
+
+Menu cards morphing and floating on hover
+
+3D tilt effect on cards using mouse position
+
+Subtle ambient motion (elements gently moving even when idle)
+
+Website Sections:
+1️⃣ Hero Section
+
+Fullscreen hero
+
+Restaurant name: “Las Palmas” (placeholder if needed)
+
+Subtitle: “Fine Dining in the Heart of Oran”
+
+Address displayed clearly:
+P922+7XX, Rue Patrice Lumumba, Oran
+
+Luxurious animated CTA button:
+“Reserve a Table”
+
+2️⃣ About the Restaurant
+
+Short story about the restaurant in Oran
+
+Emphasis on:
+
+Quality ingredients
+
+Comfort & elegance
+
+Local and international flavors
+
+Smooth text reveal animation
+
+Floating image card with soft shadow
+
+3️⃣ Menu Experience
+
+Animated menu categories:
+
+Grills
+
+Seafood
+
+Traditional Algerian dishes
+
+Desserts
+
+Menu cards with:
+
+Hover glow
+
+Scale + depth
+
+Morphing animation on appearance
+
+4️⃣ Atmosphere & Experience
+
+Focus on ambiance and hospitality
+
+3D animated cards reacting to mouse movement
+
+Luxurious, calm visual rhythm
+
+5️⃣ Reservation Call-To-Action
+
+Elegant reservation section
+
+Button animation using anime.js
+
+WhatsApp-style contact CTA (visual only)
+
+6️⃣ Location & Footer
+
+Embedded Google Maps iframe pointing to:
+P922+7XX, Rue Patrice Lumumba, Oran
+
+Footer with:
+
+Address
+
+Opening hours (placeholder)
+
+Animated social icons
+
+Project Requirements:
+
+Clean React component structure
+
+Reusable animation helpers (anime.js)
+
+Fully responsive (mobile-first)
+
+Placeholder images and text
+
+Clear comments for animation logic
+
+Output:
+
+Generate the full frontend project including:
+
+main.jsx
+
+App.jsx
+
+/components
+
+/animations
+
+Styling files
