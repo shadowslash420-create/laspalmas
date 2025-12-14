@@ -27,7 +27,11 @@ A cinematic, luxury digital experience for Las Palmas, a high-end restaurant in 
 │   │   ├── AnimatedBackground.jsx # Ambient glow orbs and grid
 │   │   ├── OwnerMode.jsx         # Hidden owner panel for editing
 │   │   ├── SketchfabEmbed.jsx    # 3D model integration component
+│   │   ├── Scene3D.jsx           # Scroll-reactive 3D scene with transforms
+│   │   ├── AmbientLighting.jsx   # Dynamic lighting overlay based on scroll
 │   │   └── ParallaxSection.jsx   # Scroll-based parallax wrapper
+│   ├── hooks/
+│   │   └── useScrollProgress.jsx # Scroll tracking context and hook
 │   └── animations/
 │       └── useAnime.js           # Reusable anime.js hooks
 ├── index.html
@@ -53,6 +57,13 @@ A cinematic, luxury digital experience for Las Palmas, a high-end restaurant in 
 - Sections with subtle parallax depth
 - Text moves slower than visuals
 - No harsh snapping, everything floats
+
+### 3D as a Living Character
+- Fixed 3D scene responds to scroll with subtle transforms
+- Perspective shifts, gentle rotation, and scale changes
+- Warm lighting at top deepens as users progress
+- Section-aware lighting adapts to each area (hero, about, menu, etc.)
+- Supports the story without dominating the experience
 
 ### Menu as Gallery
 - Each dish introduced with hover reveal
