@@ -1,0 +1,162 @@
+Design Direction
+
+Elegant, premium, Mediterranean luxury
+
+Dark theme with warm gold / bronze accents
+
+Calm, immersive, cinematic
+
+3D elements feel natural and not gimmicky
+
+3D REQUIREMENTS (VERY IMPORTANT)
+Sketchfab Integration:
+
+Embed a high-quality Sketchfab 3D scene using iframe
+
+Model type should visually match:
+
+Luxury restaurant interior
+
+Elegant dining space
+
+Or abstract architectural luxury scene
+
+Embed behavior:
+
+3D scene placed in Hero Section
+
+Responsive iframe
+
+Autoplay enabled
+
+UI controls hidden
+
+Soft lighting
+
+Camera slowly orbiting
+
+Example iframe configuration:
+
+autostart=1
+
+ui_controls=0
+
+ui_infos=0
+
+ui_watermark=0
+
+Sections
+1️⃣ Hero Section (WITH 3D)
+
+Fullscreen layout
+
+Sketchfab 3D scene as:
+
+Background layer OR
+
+Centerpiece inside a glassmorphism container
+
+Overlay text animated using anime.js:
+
+Restaurant name: Las Palmas
+
+Subtitle: Fine Dining in the Heart of Oran
+
+Address: P922+7XX, Rue Patrice Lumumba, Oran
+
+2️⃣ About Section
+
+Smooth anime.js reveal
+
+Floating content cards
+
+Elegant typography
+
+3️⃣ Menu Experience
+
+Animated menu cards
+
+Hover depth and glow
+
+Category transitions using anime.js
+
+4️⃣ Atmosphere Section
+
+Cards with subtle 3D tilt on mouse movement
+
+Luxury motion timing
+
+5️⃣ Reservation CTA
+
+Premium animated button
+
+WhatsApp-style visual CTA
+
+6️⃣ Location & Footer
+
+Google Maps embed for:
+P922+7XX, Rue Patrice Lumumba, Oran
+
+Minimal animated footer
+
+Animation Requirements
+
+anime.js for:
+
+Hero text stagger
+
+Section entrance animations
+
+Button micro-interactions
+
+Smooth easing
+
+No harsh motion
+
+Project Output
+
+Full React project structure
+
+Reusable SketchfabEmbed.jsx component
+
+Clear comments explaining iframe parameters
+
+Placeholder Sketchfab model ID (easy to replace)
+
+Final Result Goal
+
+A luxury restaurant website in Oran with a cinematic Sketchfab 3D experience, modern, immersive, elegant, and premium — suitable to impress real restaurant owners.
+
+🎯 HOW YOU PICK THE RIGHT SKETCHFAB MODEL (IMPORTANT)
+
+On Sketchfab, search for:
+
+luxury restaurant interior
+
+fine dining interior
+
+modern restaurant 3d
+
+luxury architectural interior
+
+abstract luxury interior
+
+Choose models that are:
+
+⭐ High-rated
+
+🎥 Already well-lit
+
+📜 License: CC or allowed for embedding
+
+🧠 Pro Tip (VERY IMPORTANT)
+
+This approach:
+
+Looks extremely high-end
+
+Requires zero 3D modeling
+
+Runs well on phones
+
+Impresses non-technical restaurant owners
