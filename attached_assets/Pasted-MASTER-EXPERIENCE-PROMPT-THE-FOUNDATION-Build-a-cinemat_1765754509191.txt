@@ -1,0 +1,200 @@
+MASTER EXPERIENCE PROMPT (THE FOUNDATION)
+
+Build a cinematic, luxury digital experience for a high-end restaurant in Oran, Algeria (P922+7XX, Rue Patrice Lumumba).
+
+The website should feel like:
+
+A film opening, not a webpage
+
+Calm, confident, expensive
+
+Designed for people who appreciate quality and atmosphere
+
+Every interaction must feel intentional, slow, and premium.
+No generic UI patterns.
+
+💰 Value: Brand strategy + UX philosophy
+
+2️⃣ CINEMATIC OPENING SEQUENCE (THIS ALONE IS $10K)
+
+Create a cinematic intro sequence:
+
+Black screen
+
+Soft ambient sound (optional toggle)
+
+Fade into a Sketchfab 3D luxury interior
+
+Camera slowly drifting
+
+Restaurant name appears letter by letter using anime.js
+
+Subtle grain + vignette
+
+Allow user to “Enter Experience”
+
+💰 Value: High-end storytelling & emotional hook
+
+3️⃣ ARCHITECTURAL SCROLL (BIG MONEY FEATURE)
+
+Implement architectural scrolling:
+
+Scrolling feels like moving through physical space
+
+Sections overlap slightly
+
+Depth layering (foreground / mid / background)
+
+Text moves slower than visuals (parallax restraint)
+
+No harsh snapping. Everything floats.
+
+💰 Value: Advanced motion design
+
+4️⃣ 3D AS A CHARACTER, NOT A DECORATION
+
+Treat the Sketchfab 3D scene as a living presence:
+
+3D scene reacts subtly to scroll
+
+Lighting feels warm at first, deeper later
+
+Camera movement synced to user progression
+
+The 3D should support the story, not dominate it.
+
+💰 Value: Narrative 3D integration
+
+5️⃣ LUXURY TYPOGRAPHY SYSTEM
+
+Design a typography system:
+
+Serif for emotion (headlines)
+
+Sans-serif for clarity (body)
+
+Large breathing space
+
+Text never rushes onto screen
+
+Text appears like it’s being revealed, not loaded.
+
+💰 Value: Editorial design
+
+6️⃣ MENU AS AN EXPERIENCE (NOT A LIST)
+
+Present the menu like a gallery:
+
+Each dish is introduced slowly
+
+Hover reveals story, ingredients, origin
+
+Gentle light sweep animation on cards
+
+No prices shown initially — focus on desire first.
+
+💰 Value: Luxury conversion psychology
+
+7️⃣ INVISIBLE MICRO-INTERACTIONS
+
+Add micro-interactions that are almost invisible:
+
+Buttons slightly warm on hover
+
+Soft scale shift on click
+
+Cursor proximity glow (very subtle)
+
+Nothing flashy. Everything controlled.
+
+💰 Value: Perceived craftsmanship
+
+8️⃣ “SILENCE IS LUXURY” PERFORMANCE PROMPT
+
+Optimize performance so:
+
+Animations are GPU-friendly
+
+Motion pauses when user stops scrolling
+
+Idle state has slow ambient movement
+
+The site should feel calm, not busy.
+
+💰 Value: High-end engineering
+
+9️⃣ LOCATION AS PRESTIGE (ORAN IDENTITY)
+
+Integrate Oran subtly:
+
+Mediterranean color warmth
+
+Cultural confidence (no clichés)
+
+Address treated like a signature:
+“P922+7XX, Rue Patrice Lumumba, Oran”
+
+Oran should feel important.
+
+💰 Value: Place-based branding
+
+🔟 RESERVATION AS A RITUAL
+
+Design reservation flow as a ritual:
+
+Minimal form
+
+Smooth step transitions
+
+Confirmation feels ceremonial
+
+User feels chosen, not processed.
+
+💰 Value: Luxury UX psychology
+
+1️⃣1️⃣ OWNER MODE (THIS SELLS THE $50K)
+
+Add a hidden “Owner Mode”:
+
+Toggle animations on/off
+
+Change hero text
+
+Update menu items
+
+Swap Sketchfab model ID
+
+No backend required, frontend controls only.
+
+💰 Value: Longevity & control
+
+1️⃣2️⃣ FINAL POLISH PROMPT (AGENCY-LEVEL)
+
+Apply final polish:
+
+Perfect easing curves
+
+No default Tailwind feel
+
+Consistent spacing rhythm
+
+Everything feels custom, bespoke, intentional
+
+💰 Value: The difference between $5k and $50k
+
+🧠 REALITY CHECK (IMPORTANT)
+
+A $50,000 website is:
+
+30% visuals
+
+30% motion
+
+20% psychology
+
+20% restraint
+
+NOT:
+❌ More features
+❌ Faster animations
+❌ Flashy effects

@@ -1,51 +1,99 @@
 # Las Palmas Restaurant Website
 
 ## Overview
-A luxurious, modern 3D restaurant website for Las Palmas, a fine dining establishment located in Oran, Algeria. The website features elegant animations, a dark theme with gold accents, and a Mediterranean-inspired aesthetic.
+A cinematic, luxury digital experience for Las Palmas, a high-end restaurant in Oran, Algeria. The website is designed to feel like a film opening - calm, confident, and expensive. Every interaction is intentional, slow, and premium.
 
 ## Tech Stack
 - **Framework**: React 18 with Vite 5
 - **Styling**: Tailwind CSS
 - **Animations**: anime.js
-- **Build Tool**: Vite
+- **Typography**: Cormorant Garamond (serif) + Montserrat (sans-serif)
 
 ## Project Structure
 ```
 /
 ├── src/
-│   ├── main.jsx           # React entry point
-│   ├── App.jsx            # Main app component
-│   ├── index.css          # Global styles + Tailwind
-│   ├── components/        # React components
-│   │   ├── Hero.jsx       # Hero section with animated title
-│   │   ├── About.jsx      # About the restaurant
-│   │   ├── Menu.jsx       # Menu categories and items
-│   │   ├── Atmosphere.jsx # Experience section
-│   │   ├── Reservation.jsx # Reservation CTA
-│   │   └── Footer.jsx     # Location map and footer
-│   └── animations/        # Animation utilities
-│       └── useAnime.js    # Reusable anime.js hooks
-├── index.html             # HTML template
-├── vite.config.js         # Vite configuration
-├── tailwind.config.js     # Tailwind configuration
-└── package.json           # Dependencies
+│   ├── main.jsx              # React entry point
+│   ├── App.jsx               # Main app with OwnerContext
+│   ├── index.css             # Global styles + custom animations
+│   ├── components/
+│   │   ├── CinematicIntro.jsx    # Opening sequence with Enter Experience
+│   │   ├── Hero.jsx              # Hero section with animated title
+│   │   ├── About.jsx             # Restaurant story section
+│   │   ├── Menu.jsx              # Gallery-style menu with hover reveals
+│   │   ├── Atmosphere.jsx        # Experience cards section
+│   │   ├── Reservation.jsx       # Multi-step ritual reservation form
+│   │   ├── Footer.jsx            # Location and social links
+│   │   ├── AnimatedBackground.jsx # Ambient glow orbs and grid
+│   │   ├── OwnerMode.jsx         # Hidden owner panel for editing
+│   │   ├── SketchfabEmbed.jsx    # 3D model integration component
+│   │   └── ParallaxSection.jsx   # Scroll-based parallax wrapper
+│   └── animations/
+│       └── useAnime.js           # Reusable anime.js hooks
+├── index.html
+├── vite.config.js
+├── tailwind.config.js
+└── package.json
 ```
 
 ## Running the Project
 - **Development**: `npm run dev` (runs on port 5000)
-- **Build**: `npm run build` (outputs to `dist/`)
+- **Build**: `npm run build`
 - **Preview**: `npm run preview`
 
-## Features
-- Animated hero section with staggered letter animation
-- Section reveal animations on scroll
-- 3D card tilt effects on hover
-- Ambient floating animations
-- Responsive design (mobile-first)
-- Google Maps integration
-- WhatsApp contact button
+## Key Features
+
+### Cinematic Opening Sequence
+- Black screen with subtle grain texture
+- Letter-by-letter title reveal animation
+- "Enter Experience" button with elegant hover state
+- Vignette overlay for depth
+
+### Architectural Scrolling
+- Sections with subtle parallax depth
+- Text moves slower than visuals
+- No harsh snapping, everything floats
+
+### Menu as Gallery
+- Each dish introduced with hover reveal
+- Story, ingredients, and origin shown on hover
+- Prices hidden initially, revealed after delay
+- Category filtering with elegant transitions
+
+### Owner Mode
+- Hidden control panel (type "owner" to activate)
+- Edit hero title and subtitle
+- Modify about text
+- Update menu items (name, description, price, category)
+- Change Sketchfab 3D model ID
+- No backend required, frontend controls only
+
+### Luxury Micro-Interactions
+- Buttons warm subtly on hover
+- Soft scale shift on click
+- Film grain overlay throughout
+- Ambient glow orbs that pulse slowly
+- Motion pauses when user stops scrolling
+
+### Reservation Ritual
+- 3-step minimal form
+- Smooth step transitions with progress dots
+- Ceremonial confirmation screen
+- User feels chosen, not processed
+
+## Design System
+- **Colors**: Gold (#d4a012), Sand (#f5f0e1), Dark (#0a0a0a)
+- **Typography**: Serif for emotion, sans-serif for clarity
+- **Spacing**: Large breathing room, never rushed
+- **Animations**: easeOutCubic for reveals, easeInOutSine for ambient
 
 ## Restaurant Details
 - **Name**: Las Palmas
 - **Location**: P922+7XX, Rue Patrice Lumumba, Oran, Algeria
 - **Cuisine**: Mediterranean-Algerian fine dining
+- **Established**: 2020
+
+## User Preferences
+- Luxury aesthetic with restrained animations
+- Mobile-responsive design
+- Accessibility: prefers-reduced-motion support

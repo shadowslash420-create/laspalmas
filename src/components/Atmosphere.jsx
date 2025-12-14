@@ -1,10 +1,8 @@
 import { useRef, useEffect } from 'react'
 import anime from 'animejs'
-import { useCardTilt, useAmbientFloat } from '../animations/useAnime'
 
 const AtmosphereCard = ({ title, description, delay }) => {
   const cardRef = useRef(null)
-  useCardTilt(cardRef)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -15,9 +13,8 @@ const AtmosphereCard = ({ title, description, delay }) => {
               targets: cardRef.current,
               opacity: [0, 1],
               translateY: [60, 0],
-              rotateX: [-10, 0],
               easing: 'easeOutCubic',
-              duration: 1000,
+              duration: 1200,
               delay: delay,
             })
             observer.unobserve(entry.target)
@@ -37,14 +34,21 @@ const AtmosphereCard = ({ title, description, delay }) => {
   return (
     <div
       ref={cardRef}
-      className="relative perspective-1000 transform-style-3d opacity-0"
+      className="relative group opacity-0"
     >
-      <div className="relative bg-gradient-to-br from-dark-700/50 to-dark-800/50 backdrop-blur-sm p-10 rounded-2xl border border-gold-500/10 hover:border-gold-500/30 transition-all duration-500">
-        <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-gold-500/30 rounded-tl-2xl"></div>
-        <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-gold-500/30 rounded-br-2xl"></div>
+      <div className="relative bg-dark-800/30 backdrop-blur-sm p-10 md:p-12 rounded-sm border border-gold-500/10 hover:border-gold-500/20 transition-all duration-700">
+        <div className="absolute top-0 left-0 w-16 h-16 border-t border-l border-gold-500/20" />
+        <div className="absolute bottom-0 right-0 w-16 h-16 border-b border-r border-gold-500/20" />
         
-        <h3 className="font-serif text-3xl text-gold-400 mb-4">{title}</h3>
-        <p className="font-sans text-sand-200/70 leading-relaxed">{description}</p>
+        <div 
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-1000"
+          style={{
+            background: 'linear-gradient(135deg, rgba(212,160,18,0.02) 0%, transparent 100%)'
+          }}
+        />
+        
+        <h3 className="font-serif text-2xl md:text-3xl text-gold-400 mb-6 font-light">{title}</h3>
+        <p className="font-sans text-sand-200/60 leading-relaxed text-sm">{description}</p>
       </div>
     </div>
   )
@@ -52,9 +56,6 @@ const AtmosphereCard = ({ title, description, delay }) => {
 
 const Atmosphere = () => {
   const titleRef = useRef(null)
-  const decorRef = useRef(null)
-
-  useAmbientFloat(decorRef, { distance: 20 })
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -66,7 +67,7 @@ const Atmosphere = () => {
               opacity: [0, 1],
               translateY: [50, 0],
               easing: 'easeOutCubic',
-              duration: 1000,
+              duration: 1200,
             })
             observer.unobserve(entry.target)
           }
@@ -98,30 +99,35 @@ const Atmosphere = () => {
   ]
 
   return (
-    <section className="relative py-32 px-6 md:px-16 lg:px-24 bg-dark-800 overflow-hidden">
+    <section className="relative py-32 md:py-40 px-6 md:px-16 lg:px-24 bg-dark-800 overflow-hidden">
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-gold-600/5 rounded-full filter blur-[200px]" />
+      </div>
+      
       <div 
-        ref={decorRef}
-        className="absolute top-20 right-10 w-64 h-64 border border-gold-500/10 rounded-full"
-      ></div>
-      <div className="absolute bottom-20 left-10 w-48 h-48 border border-gold-500/5 rounded-full"></div>
+        className="absolute inset-0 pointer-events-none opacity-[0.02]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div ref={titleRef} className="text-center mb-20 opacity-0">
-          <h2 className="font-serif text-5xl md:text-7xl text-gold-400 mb-4">
-            The Experience
-          </h2>
-          <p className="font-sans text-sand-300/60 tracking-widest uppercase text-sm">
+      <div className="max-w-6xl mx-auto relative z-10">
+        <div ref={titleRef} className="text-center mb-20 md:mb-24 opacity-0">
+          <p className="font-sans text-gold-500/50 text-xs tracking-[0.4em] uppercase mb-6">
             Where Every Detail Matters
           </p>
+          <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl text-gold-400 font-light">
+            The Experience
+          </h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
           {atmosphereItems.map((item, index) => (
             <AtmosphereCard
               key={item.title}
               title={item.title}
               description={item.description}
-              delay={index * 200}
+              delay={index * 150}
             />
           ))}
         </div>
