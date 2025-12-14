@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import anime from 'animejs'
 import { animateButton } from '../animations/useAnime'
-import SketchfabEmbed from './SketchfabEmbed'
+import AnimatedBackground from './AnimatedBackground'
 
 const Hero = () => {
   const titleRef = useRef(null)
@@ -62,15 +62,10 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      <SketchfabEmbed modelId="c4eb0ce3d2814a168ce359c707e540df" />
-      
-      <div className="absolute inset-0 opacity-30 pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gold-600 rounded-full filter blur-[150px]"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-bronze-500 rounded-full filter blur-[120px]"></div>
-      </div>
+      <AnimatedBackground />
 
       <div className="relative z-10 text-center px-6 perspective-1000">
-        <div className="backdrop-blur-sm bg-dark-900/30 p-8 md:p-16 rounded-2xl border border-gold-500/10">
+        <div className="backdrop-blur-sm bg-dark-900/40 p-8 md:p-16 rounded-2xl border border-gold-500/20 shadow-2xl shadow-gold-900/20">
           <h1 
             ref={titleRef}
             className="hero-title font-serif text-6xl md:text-8xl lg:text-9xl font-bold text-gold-400 mb-6 tracking-wider drop-shadow-2xl"
