@@ -1,4 +1,4 @@
-import { useState, createContext, useContext } from 'react'
+import { useState, createContext, useContext, Suspense } from 'react'
 import { ScrollProvider } from './hooks/useScrollProgress.jsx'
 import CinematicIntro from './components/CinematicIntro'
 import Hero from './components/Hero'
@@ -11,6 +11,7 @@ import OwnerMode from './components/OwnerMode'
 import ParallaxSection from './components/ParallaxSection'
 import Scene3D from './components/Scene3D'
 import AmbientLighting from './components/AmbientLighting'
+import Interactive3DObject from './components/Interactive3DObject'
 
 export const OwnerContext = createContext({
   isOwnerMode: false,
@@ -120,6 +121,10 @@ function App() {
           </div>
 
           <OwnerMode />
+          
+          <Suspense fallback={null}>
+            <Interactive3DObject className="fixed inset-0 pointer-events-none" style={{ zIndex: 9999 }} />
+          </Suspense>
         </div>
       </ScrollProvider>
     </OwnerContext.Provider>

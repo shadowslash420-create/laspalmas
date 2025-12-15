@@ -30,10 +30,10 @@ const GoldenSpoon = ({ mousePosition }) => {
   useFrame((state, delta) => {
     if (!meshRef.current) return
     
-    targetPosition.current.x = mousePosition.x * 2.5
-    targetPosition.current.y = mousePosition.y * 2.5
+    targetPosition.current.x = mousePosition.x * 4
+    targetPosition.current.y = mousePosition.y * 3
     
-    const lerpFactor = 0.06
+    const lerpFactor = 0.05
     currentPosition.current.x += (targetPosition.current.x - currentPosition.current.x) * lerpFactor
     currentPosition.current.y += (targetPosition.current.y - currentPosition.current.y) * lerpFactor
     
@@ -43,15 +43,15 @@ const GoldenSpoon = ({ mousePosition }) => {
     const velocityX = targetPosition.current.x - currentPosition.current.x
     const velocityY = targetPosition.current.y - currentPosition.current.y
     
-    const targetRotationX = -velocityY * 0.4
-    const targetRotationY = velocityX * 0.4
+    const targetRotationX = -velocityY * 0.5
+    const targetRotationY = velocityX * 0.5
     
-    currentRotation.current.x += (targetRotationX - currentRotation.current.x) * 0.08
-    currentRotation.current.y += (targetRotationY - currentRotation.current.y) * 0.08
+    currentRotation.current.x += (targetRotationX - currentRotation.current.x) * 0.06
+    currentRotation.current.y += (targetRotationY - currentRotation.current.y) * 0.06
     
-    meshRef.current.rotation.x = currentRotation.current.x + Math.PI * 0.1
-    meshRef.current.rotation.y = currentRotation.current.y + state.clock.elapsedTime * 0.3
-    meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.5) * 0.1 - 0.3
+    meshRef.current.rotation.x = currentRotation.current.x + Math.PI * 0.15
+    meshRef.current.rotation.y = currentRotation.current.y + state.clock.elapsedTime * 0.2
+    meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.4) * 0.15 - 0.4
   })
 
   const goldMaterial = {
@@ -160,7 +160,7 @@ const isWebGLAvailable = () => {
   }
 }
 
-const Interactive3DObject = ({ className = '' }) => {
+const Interactive3DObject = ({ className = '', style = {} }) => {
   const containerRef = useRef(null)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [webglSupported, setWebglSupported] = useState(true)
@@ -171,31 +171,16 @@ const Interactive3DObject = ({ className = '' }) => {
   
   useEffect(() => {
     const handleMouseMove = (event) => {
-      if (!containerRef.current) return
-      
-      const rect = containerRef.current.getBoundingClientRect()
-      
-      const relativeX = event.clientX - rect.left
-      const relativeY = event.clientY - rect.top
-      
-      const normalizedX = (relativeX / rect.width) * 2 - 1
-      const normalizedY = -((relativeY / rect.height) * 2 - 1)
-      
+      const normalizedX = (event.clientX / window.innerWidth) * 2 - 1
+      const normalizedY = -((event.clientY / window.innerHeight) * 2 - 1)
       setMousePosition({ x: normalizedX, y: normalizedY })
     }
     
     const handleTouchMove = (event) => {
-      if (!containerRef.current || !event.touches[0]) return
-      
+      if (!event.touches[0]) return
       const touch = event.touches[0]
-      const rect = containerRef.current.getBoundingClientRect()
-      
-      const relativeX = touch.clientX - rect.left
-      const relativeY = touch.clientY - rect.top
-      
-      const normalizedX = (relativeX / rect.width) * 2 - 1
-      const normalizedY = -((relativeY / rect.height) * 2 - 1)
-      
+      const normalizedX = (touch.clientX / window.innerWidth) * 2 - 1
+      const normalizedY = -((touch.clientY / window.innerHeight) * 2 - 1)
       setMousePosition({ x: normalizedX, y: normalizedY })
     }
     
@@ -209,23 +194,23 @@ const Interactive3DObject = ({ className = '' }) => {
   }, [])
   
   if (!webglSupported) {
-    return (
-      <div className={`w-full h-full ${className}`}>
-        <Fallback />
-      </div>
-    )
+    return null
   }
   
   return (
     <div 
       ref={containerRef}
-      className={`w-full h-full ${className}`}
-      style={{ touchAction: 'none', position: 'relative', zIndex: 10 }}
+      className={`${className}`}
+      style={{ 
+        touchAction: 'none',
+        pointerEvents: 'none',
+        ...style
+      }}
     >
-      <WebGLErrorBoundary fallback={<Fallback />}>
+      <WebGLErrorBoundary fallback={null}>
         <Canvas
           shadows
-          camera={{ position: [0, 2, 5], fov: 45 }}
+          camera={{ position: [0, 0, 6], fov: 50 }}
           gl={{ 
             antialias: true,
             alpha: true,
@@ -233,13 +218,8 @@ const Interactive3DObject = ({ className = '' }) => {
             failIfMajorPerformanceCaveat: false
           }}
           style={{ 
-            background: 'transparent', 
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            zIndex: 10
+            background: 'transparent',
+            pointerEvents: 'none'
           }}
         >
           <Scene mousePosition={mousePosition} />
