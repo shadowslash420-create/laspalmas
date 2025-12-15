@@ -21,7 +21,7 @@ class WebGLErrorBoundary extends Component {
   }
 }
 
-const GoldenOrb = ({ mousePosition }) => {
+const GoldenFork = ({ mousePosition }) => {
   const meshRef = useRef()
   const targetPosition = useRef({ x: 0, y: 0 })
   const currentPosition = useRef({ x: 0, y: 0 })
@@ -61,29 +61,37 @@ const GoldenOrb = ({ mousePosition }) => {
     meshRef.current.rotation.z = currentRotation.current.z + Math.sin(state.clock.elapsedTime * 0.3) * 0.1
   })
 
+  const goldMaterial = {
+    color: "#d4a012",
+    metalness: 0.95,
+    roughness: 0.05,
+    emissive: "#d4a012",
+    emissiveIntensity: 0.15
+  }
+
   return (
-    <group ref={meshRef} scale={1.2}>
-      <mesh castShadow>
-        <icosahedronGeometry args={[0.5, 1]} />
-        <meshStandardMaterial
-          color="#d4a012"
-          metalness={0.95}
-          roughness={0.05}
-          emissive="#d4a012"
-          emissiveIntensity={0.15}
-        />
+    <group ref={meshRef} scale={0.5} rotation={[0, 0, Math.PI / 4]}>
+      <mesh castShadow position={[0, -0.8, 0]}>
+        <cylinderGeometry args={[0.06, 0.08, 1.2, 16]} />
+        <meshStandardMaterial {...goldMaterial} />
       </mesh>
       
-      <mesh scale={1.3}>
-        <icosahedronGeometry args={[0.5, 1]} />
-        <meshStandardMaterial
-          color="#d4a012"
-          metalness={0.9}
-          roughness={0.1}
-          transparent
-          opacity={0.15}
-          wireframe
-        />
+      <mesh castShadow position={[0, 0.1, 0]}>
+        <boxGeometry args={[0.5, 0.08, 0.06]} />
+        <meshStandardMaterial {...goldMaterial} />
+      </mesh>
+      
+      <mesh castShadow position={[-0.18, 0.5, 0]}>
+        <cylinderGeometry args={[0.025, 0.03, 0.75, 12]} />
+        <meshStandardMaterial {...goldMaterial} />
+      </mesh>
+      <mesh castShadow position={[0, 0.5, 0]}>
+        <cylinderGeometry args={[0.025, 0.03, 0.75, 12]} />
+        <meshStandardMaterial {...goldMaterial} />
+      </mesh>
+      <mesh castShadow position={[0.18, 0.5, 0]}>
+        <cylinderGeometry args={[0.025, 0.03, 0.75, 12]} />
+        <meshStandardMaterial {...goldMaterial} />
       </mesh>
       
       <pointLight position={[0, 0, 0.5]} intensity={0.5} color="#d4a012" distance={4} />
@@ -108,7 +116,7 @@ const Scene = ({ mousePosition }) => {
         color="#d4a012" 
       />
       
-      <GoldenOrb mousePosition={mousePosition} />
+      <GoldenFork mousePosition={mousePosition} />
       
       <Environment preset="city" />
     </>
