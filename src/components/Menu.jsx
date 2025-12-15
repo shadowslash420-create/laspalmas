@@ -117,9 +117,11 @@ const FlipMenuCard = ({ item, delay }) => {
   return (
     <div
       ref={cardRef}
-      className={`flip-card cursor-pointer ${isFlipped ? 'is-flipped' : ''} ${isRevealed ? 'opacity-100' : 'opacity-0 translate-y-12'}`}
+      className={`flip-card ${isFlipped ? 'is-flipped' : ''}`}
       style={{ 
         height: '420px',
+        opacity: isRevealed ? 1 : 0,
+        transform: isRevealed ? 'translateY(0)' : 'translateY(48px)',
         transition: 'opacity 1s ease, transform 1s ease'
       }}
       onClick={handleClick}
@@ -135,7 +137,6 @@ const FlipMenuCard = ({ item, delay }) => {
           )}
           
           <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/50 to-transparent" />
-          
           <div className="absolute inset-0 border border-gold-500/20 rounded-xl pointer-events-none" />
           
           <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -226,6 +227,43 @@ const FlipMenuCard = ({ item, delay }) => {
   )
 }
 
+const CarouselCard = ({ item }) => {
+  const image = menuImages[item.id] || item.image
+  
+  return (
+    <div className="carousel-item">
+      <div className="relative h-48 rounded-lg overflow-hidden border border-gold-500/20">
+        {image && (
+          <img 
+            src={image} 
+            alt={item.title}
+            className="w-full h-full object-cover"
+          />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <p className="text-gold-500/60 text-[10px] tracking-[0.2em] uppercase mb-1">{item.category}</p>
+          <h4 className="font-serif text-lg text-gold-400">{item.title}</h4>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const InfiniteCarousel = ({ items }) => {
+  const duplicatedItems = [...items, ...items]
+  
+  return (
+    <div className="overflow-hidden py-8">
+      <div className="infinite-carousel">
+        {duplicatedItems.map((item, index) => (
+          <CarouselCard key={`${item.id}-${index}`} item={item} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const Menu = () => {
   const { siteData } = useOwner()
   const titleRef = useRef(null)
@@ -304,30 +342,16 @@ const Menu = () => {
         </div>
 
         <div className="flex justify-center mb-10 md:mb-16 lg:mb-20">
-          <div 
-            className="radio-container font-sans"
-            style={{ '--total-radio': categories.length }}
-          >
-            {categories.map((category, index) => (
-              <div key={category}>
-                <input
-                  type="radio"
-                  id={`category-${category}`}
-                  name="category-filter"
-                  checked={activeFilter === category}
-                  onChange={() => setActiveFilter(category)}
-                />
-                <label htmlFor={`category-${category}`}>
-                  {category}
-                </label>
-              </div>
+          <div className="category-carousel">
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setActiveFilter(category)}
+                className={`category-pill font-sans ${activeFilter === category ? 'active' : ''}`}
+              >
+                {category}
+              </button>
             ))}
-            <div className="glider-container">
-              <div 
-                className="glider"
-                style={{ transform: `translateY(${categories.indexOf(activeFilter) * 100}%)` }}
-              />
-            </div>
           </div>
         </div>
 
@@ -341,11 +365,16 @@ const Menu = () => {
           ))}
         </div>
         
-        <div className="text-center mt-12 md:mt-20">
-          <p className="font-sans text-sand-300/20 text-xs tracking-[0.3em] uppercase">
-            Hover over each dish to discover more
+        <div className="text-center mt-16 md:mt-24">
+          <p className="font-sans text-sand-300/40 text-sm tracking-[0.2em] uppercase mb-2">
+            Where Every Detail Matters
+          </p>
+          <p className="font-serif text-gold-400/60 text-2xl md:text-3xl mb-8">
+            The Experience
           </p>
         </div>
+        
+        <InfiniteCarousel items={siteData.menuItems} />
       </div>
     </section>
   )
