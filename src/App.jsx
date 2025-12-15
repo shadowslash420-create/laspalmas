@@ -12,7 +12,6 @@ import ParallaxSection from './components/ParallaxSection'
 import AmbientLighting from './components/AmbientLighting'
 import Interactive3DObject from './components/Interactive3DObject'
 import ScrollIndicator from './components/ScrollIndicator'
-import GooeyNav from './components/GooeyNav'
 import MusicPlayer from './components/MusicPlayer'
 
 export const OwnerContext = createContext({
@@ -95,22 +94,6 @@ function App() {
           {!hasEntered && <CinematicIntro onEnter={handleEnter} />}
           
           <div className={`transition-opacity duration-1000 ${hasEntered ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
-              <GooeyNav
-                items={[
-                  { label: "Home", href: "#" },
-                  { label: "Menu", href: "#menu" },
-                  { label: "About", href: "#about" },
-                ]}
-                particleCount={15}
-                particleDistances={[90, 10]}
-                particleR={100}
-                initialActiveIndex={0}
-                animationTime={600}
-                timeVariance={300}
-                colors={[1, 2, 3, 1, 2, 3, 1, 4]}
-              />
-            </div>
             {hasEntered && <MusicPlayer />}
             <AmbientLighting />
             {hasEntered && <ScrollIndicator />}
