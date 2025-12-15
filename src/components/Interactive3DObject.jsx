@@ -21,7 +21,7 @@ class WebGLErrorBoundary extends Component {
   }
 }
 
-const RestaurantPlate = ({ mousePosition }) => {
+const GoldenSpoon = ({ mousePosition }) => {
   const meshRef = useRef()
   const targetPosition = useRef({ x: 0, y: 0 })
   const currentPosition = useRef({ x: 0, y: 0 })
@@ -30,10 +30,10 @@ const RestaurantPlate = ({ mousePosition }) => {
   useFrame((state, delta) => {
     if (!meshRef.current) return
     
-    targetPosition.current.x = mousePosition.x * 2
-    targetPosition.current.y = mousePosition.y * 2
+    targetPosition.current.x = mousePosition.x * 2.5
+    targetPosition.current.y = mousePosition.y * 2.5
     
-    const lerpFactor = 0.08
+    const lerpFactor = 0.06
     currentPosition.current.x += (targetPosition.current.x - currentPosition.current.x) * lerpFactor
     currentPosition.current.y += (targetPosition.current.y - currentPosition.current.y) * lerpFactor
     
@@ -43,66 +43,50 @@ const RestaurantPlate = ({ mousePosition }) => {
     const velocityX = targetPosition.current.x - currentPosition.current.x
     const velocityY = targetPosition.current.y - currentPosition.current.y
     
-    const targetRotationX = -velocityY * 0.3
-    const targetRotationY = velocityX * 0.3
+    const targetRotationX = -velocityY * 0.4
+    const targetRotationY = velocityX * 0.4
     
-    currentRotation.current.x += (targetRotationX - currentRotation.current.x) * 0.1
-    currentRotation.current.y += (targetRotationY - currentRotation.current.y) * 0.1
+    currentRotation.current.x += (targetRotationX - currentRotation.current.x) * 0.08
+    currentRotation.current.y += (targetRotationY - currentRotation.current.y) * 0.08
     
-    meshRef.current.rotation.x = currentRotation.current.x + Math.sin(state.clock.elapsedTime * 0.5) * 0.05
-    meshRef.current.rotation.y = currentRotation.current.y + Math.cos(state.clock.elapsedTime * 0.3) * 0.05
-    meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.4) * 0.02
+    meshRef.current.rotation.x = currentRotation.current.x + Math.PI * 0.1
+    meshRef.current.rotation.y = currentRotation.current.y + state.clock.elapsedTime * 0.3
+    meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.5) * 0.1 - 0.3
   })
+
+  const goldMaterial = {
+    color: "#d4a012",
+    metalness: 0.95,
+    roughness: 0.1,
+    emissive: "#d4a012",
+    emissiveIntensity: 0.15
+  }
   
   return (
-    <group ref={meshRef}>
-      <mesh castShadow receiveShadow position={[0, 0, 0]}>
-        <cylinderGeometry args={[1.2, 1.4, 0.15, 64]} />
-        <meshStandardMaterial 
-          color="#1a1a1a"
-          metalness={0.8}
-          roughness={0.2}
-        />
+    <group ref={meshRef} scale={1.8}>
+      <mesh castShadow position={[0, 0.8, 0]}>
+        <sphereGeometry args={[0.35, 32, 32, 0, Math.PI * 2, 0, Math.PI * 0.6]} />
+        <meshStandardMaterial {...goldMaterial} side={2} />
       </mesh>
       
-      <mesh castShadow position={[0, 0.1, 0]}>
-        <cylinderGeometry args={[1.0, 1.1, 0.08, 64]} />
-        <meshStandardMaterial 
-          color="#d4a012"
-          metalness={0.6}
-          roughness={0.3}
-          emissive="#d4a012"
-          emissiveIntensity={0.1}
-        />
+      <mesh castShadow position={[0, 0.75, 0]} rotation={[0, 0, 0]}>
+        <torusGeometry args={[0.35, 0.04, 16, 32, Math.PI * 2]} />
+        <meshStandardMaterial {...goldMaterial} />
       </mesh>
       
-      <mesh castShadow position={[0.3, 0.25, 0.1]}>
-        <sphereGeometry args={[0.15, 32, 32]} />
-        <MeshDistortMaterial 
-          color="#8B4513"
-          metalness={0.3}
-          roughness={0.7}
-          distort={0.2}
-          speed={2}
-        />
+      <mesh castShadow position={[0, 0, 0]}>
+        <cylinderGeometry args={[0.06, 0.08, 1.5, 16]} />
+        <meshStandardMaterial {...goldMaterial} />
       </mesh>
       
-      <mesh castShadow position={[-0.2, 0.22, -0.1]}>
-        <sphereGeometry args={[0.12, 32, 32]} />
-        <meshStandardMaterial 
-          color="#228B22"
-          metalness={0.1}
-          roughness={0.8}
-        />
+      <mesh castShadow position={[0, -0.85, 0]}>
+        <sphereGeometry args={[0.1, 16, 16]} />
+        <meshStandardMaterial {...goldMaterial} />
       </mesh>
       
-      <mesh castShadow position={[0, 0.2, 0.25]}>
-        <torusGeometry args={[0.08, 0.03, 16, 32]} />
-        <meshStandardMaterial 
-          color="#FFD700"
-          metalness={0.7}
-          roughness={0.2}
-        />
+      <mesh castShadow position={[0, -0.6, 0]}>
+        <torusGeometry args={[0.08, 0.02, 8, 16]} />
+        <meshStandardMaterial {...goldMaterial} />
       </mesh>
     </group>
   )
@@ -138,7 +122,7 @@ const Scene = ({ mousePosition }) => {
         color="#87CEEB" 
       />
       
-      <RestaurantPlate mousePosition={mousePosition} />
+      <GoldenSpoon mousePosition={mousePosition} />
       
       <mesh 
         rotation={[-Math.PI / 2, 0, 0]} 
