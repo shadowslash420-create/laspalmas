@@ -31,7 +31,6 @@ const Hero = () => {
   const imageScale = 1 + (scrollY * 0.0002)
   const overlayOpacity = Math.min(0.8, 0.3 + scrollY * 0.0008)
   const textOpacity = Math.max(0, 1 - scrollY * 0.002)
-  const secondTextOpacity = Math.min(1, scrollY * 0.003)
 
   return (
     <section 
@@ -79,25 +78,14 @@ const Hero = () => {
         }}
       >
         <h1 
-          className="font-serif text-6xl md:text-8xl lg:text-9xl font-light text-gold-400 mb-2 tracking-wider transition-opacity duration-300"
+          className="font-serif text-6xl md:text-8xl lg:text-9xl font-light text-gold-400 mb-8 tracking-wider transition-opacity duration-300"
           style={{ 
             textShadow: '0 0 60px rgba(212, 160, 18, 0.4), 0 4px 30px rgba(0,0,0,0.6)',
             opacity: textOpacity,
             transform: `translateY(${-scrollY * 0.3}px)`,
           }}
         >
-          {siteData.heroTitle.split(' ')[0] || 'Las'}
-        </h1>
-        
-        <h1 
-          className="font-serif text-6xl md:text-8xl lg:text-9xl font-light text-gold-400 mb-8 tracking-wider transition-opacity duration-300"
-          style={{ 
-            textShadow: '0 0 60px rgba(212, 160, 18, 0.4), 0 4px 30px rgba(0,0,0,0.6)',
-            opacity: secondTextOpacity,
-            transform: `translateY(${Math.max(0, 80 - scrollY * 0.5)}px)`,
-          }}
-        >
-          {siteData.heroTitle.split(' ')[1] || 'Palmas'}
+          {siteData.heroTitle || 'Las Palmas'}
         </h1>
         
         <p 
