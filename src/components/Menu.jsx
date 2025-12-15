@@ -1,4 +1,6 @@
-import { useRef, useEffect, useState, useCallback, useMemo } from 'react'
+import { useRef, useEffect, useState, useMemo } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import anime from 'animejs'
 import { useOwner } from '../App'
 
@@ -8,6 +10,8 @@ import couscousImg from '@assets/generated_images/couscous_royal_fine_dining.png
 import paellaImg from '@assets/generated_images/luxury_seafood_paella.png'
 import tenderloinImg from '@assets/generated_images/premium_beef_tenderloin.png'
 import baklavaImg from '@assets/generated_images/luxury_baklava_dessert.png'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const menuImages = {
   1: lambChopsImg,
@@ -28,198 +32,117 @@ const poeticLines = {
 }
 
 const dishDetails = {
-  1: {
-    ingredients: ['Premium lamb', 'Rosemary', 'Thyme', 'Garlic', 'Olive oil', 'Sea salt'],
-    calories: '580 kcal',
-    chefNote: 'Chef recommends medium-rare for optimal tenderness',
-    prepTime: '45 min'
-  },
-  2: {
-    ingredients: ['Fresh sea bass', 'Lemon', 'Capers', 'White wine', 'Parsley', 'Butter'],
-    calories: '420 kcal',
-    chefNote: 'Pairs beautifully with our house Chardonnay',
-    prepTime: '30 min'
-  },
-  3: {
-    ingredients: ['Hand-rolled semolina', 'Saffron', 'Lamb', 'Chicken', 'Seasonal vegetables', 'Chickpeas'],
-    calories: '720 kcal',
-    chefNote: 'A signature dish - allow 20 minutes for authentic preparation',
-    prepTime: '55 min'
-  },
-  4: {
-    ingredients: ['Bomba rice', 'Prawns', 'Mussels', 'Calamari', 'Saffron', 'Paprika'],
-    calories: '650 kcal',
-    chefNote: 'Best shared between two for the complete experience',
-    prepTime: '40 min'
-  },
-  5: {
-    ingredients: ['Aged beef tenderloin', 'Truffle butter', 'Black pepper', 'Shallots', 'Red wine reduction'],
-    calories: '520 kcal',
-    chefNote: 'Our sommelier suggests pairing with Malbec',
-    prepTime: '35 min'
-  },
-  6: {
-    ingredients: ['Phyllo pastry', 'Pistachios', 'Honey', 'Rose water', 'Cardamom'],
-    calories: '380 kcal',
-    chefNote: 'Best served with Turkish coffee',
-    prepTime: '15 min'
-  }
+  1: { calories: '580 kcal', prepTime: '45 min' },
+  2: { calories: '420 kcal', prepTime: '30 min' },
+  3: { calories: '720 kcal', prepTime: '55 min' },
+  4: { calories: '650 kcal', prepTime: '40 min' },
+  5: { calories: '520 kcal', prepTime: '35 min' },
+  6: { calories: '380 kcal', prepTime: '15 min' }
 }
 
 const BayWindowSlider = ({ items }) => {
-  const sliderRef = useRef(null)
+  const containerRef = useRef(null)
   const trackRef = useRef(null)
-  const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
-  const [currentScroll, setCurrentScroll] = useState(0)
-
-  const cardWidth = 380
-  const cardGap = 30
-
-  const handleMouseDown = (e) => {
-    setIsDragging(true)
-    setStartX(e.pageX - sliderRef.current.offsetLeft)
-    setScrollLeft(sliderRef.current.scrollLeft)
-    sliderRef.current.style.cursor = 'grabbing'
-  }
-
-  const handleMouseUp = () => {
-    setIsDragging(false)
-    if (sliderRef.current) {
-      sliderRef.current.style.cursor = 'grab'
-    }
-  }
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return
-    e.preventDefault()
-    const x = e.pageX - sliderRef.current.offsetLeft
-    const walk = (x - startX) * 1.5
-    sliderRef.current.scrollLeft = scrollLeft - walk
-  }
-
-  const handleTouchStart = (e) => {
-    setIsDragging(true)
-    setStartX(e.touches[0].pageX - sliderRef.current.offsetLeft)
-    setScrollLeft(sliderRef.current.scrollLeft)
-  }
-
-  const handleTouchMove = (e) => {
-    if (!isDragging) return
-    const x = e.touches[0].pageX - sliderRef.current.offsetLeft
-    const walk = (x - startX) * 1.5
-    sliderRef.current.scrollLeft = scrollLeft - walk
-  }
-
-  const handleScroll = useCallback(() => {
-    if (sliderRef.current) {
-      setCurrentScroll(sliderRef.current.scrollLeft)
-    }
-  }, [])
+  const cardsRef = useRef([])
 
   useEffect(() => {
-    const slider = sliderRef.current
-    if (slider) {
-      slider.addEventListener('scroll', handleScroll, { passive: true })
-      return () => slider.removeEventListener('scroll', handleScroll)
-    }
-  }, [handleScroll])
+    if (!containerRef.current || !trackRef.current) return
 
-  const getCardTransform = (index) => {
-    if (!sliderRef.current) return {}
-    
-    const sliderCenter = sliderRef.current.offsetWidth / 2
-    const cardPosition = (index * (cardWidth + cardGap)) - currentScroll + (cardWidth / 2)
-    const distanceFromCenter = cardPosition - sliderCenter
-    const normalizedDistance = distanceFromCenter / sliderCenter
-    
-    const rotateY = normalizedDistance * -25
-    const translateZ = -Math.abs(normalizedDistance) * 100
-    const scale = 1 - Math.abs(normalizedDistance) * 0.15
-    const opacity = 1 - Math.abs(normalizedDistance) * 0.4
-    
-    return {
-      transform: `perspective(1200px) rotateY(${rotateY}deg) translateZ(${translateZ}px) scale(${Math.max(0.7, scale)})`,
-      opacity: Math.max(0.3, opacity),
-      zIndex: Math.round(10 - Math.abs(normalizedDistance) * 5),
-    }
-  }
+    const cards = cardsRef.current.filter(Boolean)
+    const cardWidth = 380
+    const totalWidth = cards.length * cardWidth
+
+    const ctx = gsap.context(() => {
+      gsap.set(cards, {
+        rotateY: (i) => i * 15,
+        transformOrigin: '50% 50%',
+        z: -200,
+      })
+
+      gsap.to(trackRef.current, {
+        x: () => -(totalWidth - window.innerWidth + 200),
+        ease: 'none',
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top 20%',
+          end: () => `+=${totalWidth}`,
+          scrub: 1,
+          pin: true,
+          anticipatePin: 1,
+        }
+      })
+
+      cards.forEach((card, i) => {
+        gsap.to(card, {
+          rotateY: 0,
+          z: 0,
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: `top+=${i * 150} 40%`,
+            end: `top+=${i * 150 + 300} 40%`,
+            scrub: 1,
+          }
+        })
+      })
+    }, containerRef)
+
+    return () => ctx.revert()
+  }, [items])
 
   return (
-    <div className="bay-window-wrapper">
-      <div
-        ref={sliderRef}
-        className="bay-window-scroll-container"
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleMouseUp}
-        onTouchMove={handleTouchMove}
+    <div ref={containerRef} className="bay-window-container relative overflow-hidden" style={{ minHeight: '100vh' }}>
+      <div 
+        ref={trackRef}
+        className="bay-window-track flex items-center gap-8 px-20"
+        style={{ 
+          perspective: '1200px',
+          transformStyle: 'preserve-3d',
+        }}
       >
-        <div 
-          ref={trackRef}
-          className="bay-window-scroll-track"
-          style={{ 
-            width: `${items.length * (cardWidth + cardGap) + 200}px`,
-            paddingLeft: '100px',
-            paddingRight: '100px',
-          }}
-        >
-          {items.map((item, index) => {
-            const image = menuImages[item.id] || item.image
-            const poetic = poeticLines[item.id] || item.poetic || item.origin
-            const details = dishDetails[item.id] || { calories: '450 kcal', prepTime: '30 min' }
-            const cardStyle = getCardTransform(index)
-            
-            return (
-              <div
-                key={item.id}
-                className="bay-window-scroll-card"
-                style={{
-                  width: `${cardWidth}px`,
-                  marginRight: `${cardGap}px`,
-                  ...cardStyle,
-                }}
-              >
-                <div className="card-image-container">
-                  {image && (
-                    <img 
-                      src={image} 
-                      alt={item.title}
-                      draggable={false}
-                    />
-                  )}
-                  <div className="card-gradient-overlay" />
-                </div>
-                
-                <div className="card-info">
-                  <span className="card-category">{item.category}</span>
-                  <h3 className="card-title">{item.title}</h3>
-                  <p className="card-description">{item.description}</p>
-                  <div className="card-meta">
-                    <span>{details.calories}</span>
-                    <span className="meta-divider">•</span>
-                    <span>{details.prepTime}</span>
-                  </div>
-                  <p className="card-poetic">"{poetic}"</p>
-                </div>
-                
-                <div className="card-price-tag">
-                  <span>{item.price}</span>
+        {items.map((item, index) => {
+          const image = menuImages[item.id] || item.image
+          const poetic = poeticLines[item.id] || item.origin
+          const details = dishDetails[item.id] || { calories: '450 kcal', prepTime: '30 min' }
+          
+          return (
+            <div
+              key={item.id}
+              ref={el => cardsRef.current[index] = el}
+              className="bay-card flex-shrink-0 w-[380px] bg-dark-800/80 backdrop-blur-sm rounded-xl overflow-hidden border border-gold-500/20 shadow-2xl"
+              style={{
+                transformStyle: 'preserve-3d',
+                backfaceVisibility: 'hidden',
+              }}
+            >
+              <div className="relative h-56 overflow-hidden">
+                {image && (
+                  <img 
+                    src={image} 
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    draggable={false}
+                  />
+                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-transparent to-transparent" />
+                <div className="absolute top-4 right-4 bg-dark-900/80 backdrop-blur-sm px-4 py-2 rounded-full">
+                  <span className="text-gold-400 font-semibold">{item.price}</span>
                 </div>
               </div>
-            )
-          })}
-        </div>
-      </div>
-      
-      <div className="scroll-indicator">
-        <span className="indicator-arrow">←</span>
-        <span className="indicator-text">Scroll to explore</span>
-        <span className="indicator-arrow">→</span>
+              
+              <div className="p-6">
+                <span className="text-gold-500/60 text-xs uppercase tracking-[0.3em]">{item.category}</span>
+                <h3 className="font-serif text-2xl text-gold-400 mt-2 mb-3">{item.title}</h3>
+                <p className="text-sand-300/70 text-sm leading-relaxed mb-4">{item.description}</p>
+                <div className="flex items-center gap-4 text-sand-400/50 text-xs mb-4">
+                  <span>{details.calories}</span>
+                  <span>•</span>
+                  <span>{details.prepTime}</span>
+                </div>
+                <p className="text-gold-500/40 text-sm italic">"{poetic}"</p>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -278,21 +201,13 @@ const Menu = () => {
   }, [])
 
   return (
-    <section id="menu" className="relative py-20 md:py-32 lg:py-40 bg-dark-900 overflow-hidden">
+    <section id="menu" className="relative bg-dark-900 overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-600/3 rounded-full filter blur-[200px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-gold-500/2 rounded-full filter blur-[180px]" />
       </div>
 
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.015]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
-      <div className="max-w-7xl mx-auto relative z-10 px-4 md:px-8 lg:px-16">
-        <div className="text-center mb-12 md:mb-20 lg:mb-24">
+      <div className="relative z-10 pt-20 md:pt-32 lg:pt-40 px-4 md:px-8 lg:px-16">
+        <div className="text-center mb-12 md:mb-20">
           <p 
             ref={subtitleRef}
             className="font-sans text-gold-500/40 text-xs tracking-[0.5em] uppercase mb-6 md:mb-8 opacity-0"
@@ -309,12 +224,16 @@ const Menu = () => {
         </div>
 
         <div className="flex justify-center mb-10 md:mb-16">
-          <div className="category-carousel">
+          <div className="flex gap-4 flex-wrap justify-center">
             {categories.map(category => (
               <button
                 key={category}
                 onClick={() => setActiveFilter(category)}
-                className={`category-pill font-sans ${activeFilter === category ? 'active' : ''}`}
+                className={`px-6 py-2 text-xs uppercase tracking-widest border rounded-full transition-all duration-300 ${
+                  activeFilter === category 
+                    ? 'bg-gold-500/20 border-gold-500 text-gold-400' 
+                    : 'border-gold-500/30 text-gold-500/60 hover:border-gold-500/60'
+                }`}
               >
                 {category}
               </button>

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useOwner } from '../App'
@@ -8,71 +8,16 @@ gsap.registerPlugin(ScrollTrigger)
 const Hero = () => {
   const { siteData } = useOwner()
   const sectionRef = useRef(null)
-  const imageRef = useRef(null)
-  const textTopRef = useRef(null)
-  const textBottomRef = useRef(null)
-  const subtitleRef = useRef(null)
-  const addressRef = useRef(null)
-  const buttonRef = useRef(null)
-  const scrollIndicatorRef = useRef(null)
+  const [scrollY, setScrollY] = useState(0)
+
+  const handleScroll = useCallback(() => {
+    setScrollY(window.scrollY)
+  }, [])
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1,
-          pin: true,
-          pinSpacing: true
-        }
-      })
-
-      tl.fromTo(imageRef.current, 
-        { y: 0, scale: 1 }, 
-        { y: -100, scale: 1.15 }, 
-        0
-      )
-      tl.fromTo('.hero-overlay', 
-        { opacity: 0.3 }, 
-        { opacity: 0.75 }, 
-        0
-      )
-      tl.fromTo(textTopRef.current, 
-        { y: 0, opacity: 1 }, 
-        { y: -120, opacity: 0 }, 
-        0
-      )
-      tl.fromTo(textBottomRef.current, 
-        { y: 80, opacity: 0 }, 
-        { y: 0, opacity: 1 }, 
-        0
-      )
-      tl.fromTo(subtitleRef.current, 
-        { y: 0, opacity: 0.8 }, 
-        { y: -60, opacity: 0 }, 
-        0
-      )
-      tl.fromTo(addressRef.current, 
-        { y: 0, opacity: 0.5 }, 
-        { y: -40, opacity: 0 }, 
-        0
-      )
-      tl.fromTo(buttonRef.current, 
-        { y: 0, opacity: 1 }, 
-        { y: -80, opacity: 0 }, 
-        0
-      )
-      tl.fromTo(scrollIndicatorRef.current, 
-        { opacity: 1 }, 
-        { opacity: 0 }, 
-        0
-      )
-    }, sectionRef)
-
-    return () => ctx.revert()
-  }, [])
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [handleScroll])
 
   const scrollToReservation = () => {
     const reservation = document.querySelector('#reservation')
@@ -81,20 +26,37 @@ const Hero = () => {
     }
   }
 
+  const parallaxOffset = scrollY * 0.4
+  const textParallax = scrollY * 0.6
+  const imageScale = 1 + (scrollY * 0.0002)
+  const overlayOpacity = Math.min(0.8, 0.3 + scrollY * 0.0008)
+  const textOpacity = Math.max(0, 1 - scrollY * 0.002)
+  const secondTextOpacity = Math.min(1, scrollY * 0.003)
+
   return (
     <section 
       ref={sectionRef}
       className="relative h-screen w-full overflow-hidden"
     >
-      <img
-        ref={imageRef}
-        src="/bar-hero.jpg"
-        alt="Las Palmas Bar"
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ filter: 'brightness(0.9) contrast(1.05)' }}
-      />
+      <div
+        className="absolute inset-0 w-full h-full"
+        style={{
+          transform: `translateY(${parallaxOffset}px) scale(${imageScale})`,
+          transformOrigin: 'center center',
+        }}
+      >
+        <img
+          src="/bar-hero.jpg"
+          alt="Las Palmas Bar"
+          className="w-full h-full object-cover"
+          style={{ filter: 'brightness(0.9) contrast(1.05)' }}
+        />
+      </div>
       
-      <div className="hero-overlay absolute inset-0 bg-dark-900" style={{ opacity: 0.3 }} />
+      <div 
+        className="absolute inset-0 bg-dark-900 transition-opacity duration-300" 
+        style={{ opacity: overlayOpacity }} 
+      />
       
       <div 
         className="absolute inset-0 pointer-events-none"
@@ -110,49 +72,62 @@ const Hero = () => {
         }}
       />
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+      <div 
+        className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
+        style={{
+          transform: `translateY(${-textParallax * 0.5}px)`,
+        }}
+      >
         <h1 
-          ref={textTopRef}
-          className="font-serif text-6xl md:text-8xl lg:text-9xl font-light text-gold-400 mb-2 tracking-wider"
+          className="font-serif text-6xl md:text-8xl lg:text-9xl font-light text-gold-400 mb-2 tracking-wider transition-opacity duration-300"
           style={{ 
             textShadow: '0 0 60px rgba(212, 160, 18, 0.4), 0 4px 30px rgba(0,0,0,0.6)',
+            opacity: textOpacity,
+            transform: `translateY(${-scrollY * 0.3}px)`,
           }}
         >
           {siteData.heroTitle.split(' ')[0] || 'Las'}
         </h1>
         
         <h1 
-          ref={textBottomRef}
-          className="font-serif text-6xl md:text-8xl lg:text-9xl font-light text-gold-400 mb-8 tracking-wider"
+          className="font-serif text-6xl md:text-8xl lg:text-9xl font-light text-gold-400 mb-8 tracking-wider transition-opacity duration-300"
           style={{ 
             textShadow: '0 0 60px rgba(212, 160, 18, 0.4), 0 4px 30px rgba(0,0,0,0.6)',
-            opacity: 0
+            opacity: secondTextOpacity,
+            transform: `translateY(${Math.max(0, 80 - scrollY * 0.5)}px)`,
           }}
         >
           {siteData.heroTitle.split(' ')[1] || 'Palmas'}
         </h1>
         
         <p 
-          ref={subtitleRef}
-          className="font-sans text-lg md:text-xl text-sand-200/80 mb-4 tracking-[0.3em] uppercase"
+          className="font-sans text-lg md:text-xl text-sand-200/80 mb-4 tracking-[0.3em] uppercase transition-opacity duration-300"
           style={{
             textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+            opacity: textOpacity,
+            transform: `translateY(${-scrollY * 0.2}px)`,
           }}
         >
           {siteData.heroSubtitle}
         </p>
         
         <p 
-          ref={addressRef}
-          className="font-sans text-sm text-sand-300/50 mb-16 tracking-widest"
+          className="font-sans text-sm text-sand-300/50 mb-16 tracking-widest transition-opacity duration-300"
+          style={{
+            opacity: textOpacity,
+            transform: `translateY(${-scrollY * 0.15}px)`,
+          }}
         >
           P922+7XX, Rue Patrice Lumumba, Oran
         </p>
         
         <button 
-          ref={buttonRef}
           onClick={scrollToReservation}
           className="group relative px-12 py-5 bg-dark-900/50 backdrop-blur-sm border border-gold-500/50 text-gold-400 font-sans text-xs uppercase tracking-[0.25em] overflow-hidden transition-all duration-700 hover:border-gold-500 hover:bg-gold-500/10"
+          style={{
+            opacity: textOpacity,
+            transform: `translateY(${-scrollY * 0.1}px)`,
+          }}
         >
           <span className="relative z-10">Reserve a Table</span>
           <div className="absolute inset-0 bg-gold-500/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
@@ -160,8 +135,10 @@ const Hero = () => {
       </div>
 
       <div 
-        ref={scrollIndicatorRef}
-        className="absolute bottom-12 left-1/2 transform -translate-x-1/2"
+        className="absolute bottom-12 left-1/2 transform -translate-x-1/2 transition-opacity duration-300"
+        style={{
+          opacity: Math.max(0, 1 - scrollY * 0.005),
+        }}
       >
         <div className="flex flex-col items-center gap-3">
           <span className="text-gold-400/60 text-xs uppercase tracking-[0.3em]">Scroll</span>
