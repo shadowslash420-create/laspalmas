@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useMemo } from 'react'
 import anime from 'animejs'
 import { useOwner } from '../App'
 
@@ -27,6 +27,152 @@ const poeticLines = {
   6: 'Sweetness that whispers of Ottoman gardens.',
 }
 
+const dishDetails = {
+  1: {
+    ingredients: ['Premium lamb', 'Rosemary', 'Thyme', 'Garlic', 'Olive oil', 'Sea salt'],
+    calories: '580 kcal',
+    chefNote: 'Chef recommends medium-rare for optimal tenderness',
+    prepTime: '45 min'
+  },
+  2: {
+    ingredients: ['Fresh sea bass', 'Lemon', 'Capers', 'White wine', 'Parsley', 'Butter'],
+    calories: '420 kcal',
+    chefNote: 'Pairs beautifully with our house Chardonnay',
+    prepTime: '30 min'
+  },
+  3: {
+    ingredients: ['Hand-rolled semolina', 'Saffron', 'Lamb', 'Chicken', 'Seasonal vegetables', 'Chickpeas'],
+    calories: '720 kcal',
+    chefNote: 'A signature dish - allow 20 minutes for authentic preparation',
+    prepTime: '55 min'
+  },
+  4: {
+    ingredients: ['Bomba rice', 'Prawns', 'Mussels', 'Calamari', 'Saffron', 'Paprika'],
+    calories: '650 kcal',
+    chefNote: 'Best shared between two for the complete experience',
+    prepTime: '40 min'
+  },
+  5: {
+    ingredients: ['Aged beef tenderloin', 'Truffle butter', 'Black pepper', 'Shallots', 'Red wine reduction'],
+    calories: '520 kcal',
+    chefNote: 'Our sommelier suggests pairing with Malbec',
+    prepTime: '35 min'
+  },
+  6: {
+    ingredients: ['Phyllo pastry', 'Pistachios', 'Honey', 'Rose water', 'Cardamom'],
+    calories: '380 kcal',
+    chefNote: 'Best served with Turkish coffee',
+    prepTime: '15 min'
+  }
+}
+
+const Floating3DDish = ({ isHovered, category }) => {
+  const dishRef = useRef(null)
+  const animationRef = useRef(null)
+  
+  useEffect(() => {
+    if (!dishRef.current) return
+    
+    const animate = () => {
+      if (!dishRef.current) return
+      const time = Date.now() * 0.001
+      
+      const rotateY = isHovered 
+        ? Math.sin(time * 0.8) * 20 + time * 30 
+        : Math.sin(time * 0.3) * 10 + time * 15
+      
+      const translateY = Math.sin(time * 0.8) * 8
+      const scale = isHovered ? 1.15 : 1
+      
+      dishRef.current.style.transform = `
+        perspective(800px)
+        translateY(${translateY}px)
+        rotateY(${rotateY}deg)
+        rotateX(${Math.sin(time * 0.5) * 5}deg)
+        scale(${scale})
+      `
+      
+      animationRef.current = requestAnimationFrame(animate)
+    }
+    
+    animationRef.current = requestAnimationFrame(animate)
+    
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current)
+      }
+    }
+  }, [isHovered])
+
+  const getDishStyle = () => {
+    const baseStyle = {
+      width: '80px',
+      height: '80px',
+      transformStyle: 'preserve-3d',
+      transition: 'filter 0.3s ease',
+      filter: isHovered ? 'drop-shadow(0 0 20px rgba(212, 160, 18, 0.6))' : 'drop-shadow(0 0 10px rgba(212, 160, 18, 0.3))'
+    }
+    
+    return baseStyle
+  }
+
+  const getCategoryIcon = () => {
+    switch(category) {
+      case 'Grills':
+        return (
+          <div ref={dishRef} style={getDishStyle()} className="relative">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 shadow-lg" />
+            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-amber-700 to-amber-900" />
+            <div className="absolute inset-4 flex items-center justify-center">
+              <div className="w-8 h-4 bg-gradient-to-r from-amber-800 to-amber-600 rounded-sm transform rotate-12" />
+            </div>
+          </div>
+        )
+      case 'Seafood':
+        return (
+          <div ref={dishRef} style={getDishStyle()} className="relative">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-slate-100 to-slate-300 shadow-lg" />
+            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-100 to-blue-200" />
+            <div className="absolute inset-4 flex items-center justify-center">
+              <div className="w-10 h-5 bg-gradient-to-r from-amber-200 to-amber-300 rounded-full transform -rotate-12" />
+            </div>
+          </div>
+        )
+      case 'Traditional':
+        return (
+          <div ref={dishRef} style={getDishStyle()} className="relative">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 shadow-lg" />
+            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-amber-600 to-amber-800" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)' }} />
+            <div className="absolute inset-3 flex items-center justify-center">
+              <div className="w-4 h-4 bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-full" />
+            </div>
+          </div>
+        )
+      case 'Desserts':
+        return (
+          <div ref={dishRef} style={getDishStyle()} className="relative">
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-6 bg-gradient-to-br from-amber-200 to-amber-400 rounded-sm shadow-lg" />
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-12 h-5 bg-gradient-to-br from-amber-600 to-amber-800 rounded-sm" />
+            <div className="absolute bottom-11 left-1/2 transform -translate-x-1/2 w-10 h-4 bg-gradient-to-br from-gold-400 to-gold-600 rounded-sm" />
+          </div>
+        )
+      default:
+        return (
+          <div ref={dishRef} style={getDishStyle()} className="relative">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 shadow-lg" />
+            <div className="absolute inset-3 rounded-full bg-dark-800" />
+          </div>
+        )
+    }
+  }
+
+  return (
+    <div className="absolute top-4 left-4 z-20 pointer-events-none">
+      {getCategoryIcon()}
+    </div>
+  )
+}
+
 const MenuCard = ({ item, delay }) => {
   const cardRef = useRef(null)
   const imageRef = useRef(null)
@@ -34,7 +180,15 @@ const MenuCard = ({ item, delay }) => {
   const [isRevealed, setIsRevealed] = useState(false)
   const [showName, setShowName] = useState(false)
   const [showDescription, setShowDescription] = useState(false)
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
   const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+  const details = dishDetails[item.id] || {
+    ingredients: ['Fresh ingredients'],
+    calories: '450 kcal',
+    chefNote: 'Prepared with care',
+    prepTime: '30 min'
+  }
 
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
@@ -70,10 +224,12 @@ const MenuCard = ({ item, delay }) => {
     const x = (e.clientX - rect.left) / rect.width
     const y = (e.clientY - rect.top) / rect.height
     
-    const rotateY = (x - 0.5) * 8
-    const rotateX = (y - 0.5) * -8
+    setMousePos({ x, y })
     
-    imageRef.current.style.transform = `perspective(1000px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(1.02) translateZ(20px)`
+    const rotateY = (x - 0.5) * 15
+    const rotateX = (y - 0.5) * -15
+    
+    imageRef.current.style.transform = `perspective(1000px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(1.04) translateZ(40px)`
   }
 
   const handleMouseEnter = () => {
@@ -85,6 +241,7 @@ const MenuCard = ({ item, delay }) => {
   const handleMouseLeave = () => {
     if (!isTouchDevice) {
       setIsActive(false)
+      setMousePos({ x: 0.5, y: 0.5 })
       if (imageRef.current) {
         imageRef.current.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1) translateZ(0px)'
       }
@@ -99,6 +256,12 @@ const MenuCard = ({ item, delay }) => {
 
   const image = menuImages[item.id] || item.image
   const poetic = poeticLines[item.id] || item.poetic || item.origin
+
+  const glowStyle = useMemo(() => ({
+    background: `radial-gradient(circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, rgba(212, 160, 18, 0.3) 0%, transparent 50%)`,
+    opacity: isActive ? 1 : 0,
+    transition: 'opacity 0.3s ease'
+  }), [mousePos, isActive])
 
   return (
     <div
@@ -121,18 +284,23 @@ const MenuCard = ({ item, delay }) => {
               alt={item.title}
               className="w-full h-full object-cover transition-all duration-700"
               style={{
-                filter: isActive ? 'brightness(1.1) contrast(1.05)' : 'brightness(0.95)',
+                filter: isActive ? 'brightness(0.85) contrast(1.1) saturate(1.1)' : 'brightness(0.95)',
               }}
             />
           )}
           
+          <Floating3DDish isHovered={isActive} category={item.category} />
+          
           <div 
-            className={`absolute inset-0 pointer-events-none ${isActive ? 'animate-light-sweep' : ''}`}
+            className="absolute inset-0 pointer-events-none"
+            style={glowStyle}
+          />
+          
+          <div 
+            className={`absolute inset-0 pointer-events-none transition-all duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}
             style={{
-              background: 'linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)',
-              opacity: isActive ? 1 : 0,
-              transform: isActive ? 'translateX(100%)' : 'translateX(-100%)',
-              transition: 'transform 1.2s ease-out, opacity 0.5s',
+              background: 'linear-gradient(120deg, transparent 30%, rgba(212,160,18,0.25) 50%, transparent 70%)',
+              animation: isActive ? 'sweep 1.5s ease-in-out' : 'none',
             }}
           />
           
@@ -143,6 +311,13 @@ const MenuCard = ({ item, delay }) => {
             style={{
               background: 'radial-gradient(ellipse at center, transparent 40%, rgba(10,10,10,0.6) 100%)',
               opacity: isActive ? 0.3 : 0.7,
+            }}
+          />
+          
+          <div 
+            className={`absolute inset-0 transition-all duration-700 pointer-events-none ${isActive ? 'opacity-100' : 'opacity-0'}`}
+            style={{
+              boxShadow: 'inset 0 0 80px rgba(212, 160, 18, 0.25)',
             }}
           />
         </div>
@@ -166,12 +341,43 @@ const MenuCard = ({ item, delay }) => {
           </h3>
           
           <div 
-            className={`overflow-hidden transition-all duration-700 ease-out ${isActive ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0'}`}
+            className={`overflow-hidden transition-all duration-700 ease-out ${isActive ? 'max-h-[450px] opacity-100' : 'max-h-0 opacity-0'}`}
           >
-            <p className="font-sans text-sand-200/80 text-sm leading-relaxed mb-2 md:mb-3">
+            <p className="font-sans text-sand-200/80 text-sm leading-relaxed mb-3">
               {item.description}
             </p>
-            <p className="font-sans text-gold-500/60 text-xs italic tracking-wide">
+            
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div className="bg-dark-800/70 backdrop-blur-sm rounded-lg p-3 border border-gold-500/20 transform transition-transform duration-300 hover:scale-105">
+                <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Calories</p>
+                <p className="text-sand-200 text-sm font-medium">{details.calories}</p>
+              </div>
+              <div className="bg-dark-800/70 backdrop-blur-sm rounded-lg p-3 border border-gold-500/20 transform transition-transform duration-300 hover:scale-105">
+                <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Prep Time</p>
+                <p className="text-sand-200 text-sm font-medium">{details.prepTime}</p>
+              </div>
+            </div>
+            
+            <div className="bg-dark-800/70 backdrop-blur-sm rounded-lg p-3 mb-3 border border-gold-500/20">
+              <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-2">Ingredients</p>
+              <div className="flex flex-wrap gap-1.5">
+                {details.ingredients.map((ing, i) => (
+                  <span 
+                    key={i}
+                    className="text-sand-200/80 text-xs px-2 py-1 bg-gold-500/15 rounded-full border border-gold-500/20 transition-all duration-300 hover:bg-gold-500/25 hover:border-gold-500/40"
+                  >
+                    {ing}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-gold-500/15 to-transparent rounded-lg p-3 border-l-2 border-gold-500/50">
+              <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Chef's Recommendation</p>
+              <p className="text-sand-200/90 text-xs italic">{details.chefNote}</p>
+            </div>
+            
+            <p className="font-sans text-gold-500/60 text-xs italic tracking-wide mt-3">
               "{poetic}"
             </p>
           </div>
@@ -184,12 +390,27 @@ const MenuCard = ({ item, delay }) => {
         </div>
 
         <div 
-          className={`absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold-500/60 to-transparent transition-all duration-1000 ${isActive ? 'opacity-100' : 'opacity-0'}`}
+          className={`absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold-500/70 to-transparent transition-all duration-1000 ${isActive ? 'opacity-100' : 'opacity-0'}`}
           style={{
             transform: isActive ? 'translateX(0)' : 'translateX(-100%)',
           }}
         />
+        
+        <div 
+          className={`absolute top-4 right-4 transition-all duration-500 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
+        >
+          <div className="bg-dark-900/90 backdrop-blur-sm rounded-full px-4 py-2 border border-gold-500/40 shadow-lg shadow-gold-500/10">
+            <span className="text-gold-400 font-serif text-lg">{item.price}</span>
+          </div>
+        </div>
       </div>
+      
+      <style>{`
+        @keyframes sweep {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </div>
   )
 }
@@ -260,7 +481,7 @@ const Menu = () => {
             ref={subtitleRef}
             className="font-sans text-gold-500/40 text-xs tracking-[0.5em] uppercase mb-6 md:mb-8 opacity-0"
           >
-            A Private Gallery
+            Interactive Gallery
           </p>
           <h2 
             ref={titleRef}
