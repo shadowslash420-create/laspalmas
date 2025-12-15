@@ -124,11 +124,12 @@ const Hero = () => {
         }}
       >
         <h1 
-          className="font-serif text-6xl md:text-8xl lg:text-9xl font-light text-gold-400 mb-8 tracking-wider transition-opacity duration-300"
+          className="font-serif text-6xl md:text-8xl lg:text-9xl font-bold text-gold-400 mb-8 tracking-wider transition-opacity duration-300"
           style={{ 
-            textShadow: '0 0 60px rgba(212, 160, 18, 0.4), 0 4px 30px rgba(0,0,0,0.6)',
+            textShadow: '0 0 80px rgba(212, 160, 18, 0.6), 0 0 120px rgba(212, 160, 18, 0.4), 0 4px 40px rgba(0,0,0,0.8), 0 0 200px rgba(212, 160, 18, 0.3)',
             opacity: textOpacity,
             transform: `translateY(${-scrollY * 0.3}px)`,
+            WebkitTextStroke: '1px rgba(212, 160, 18, 0.3)',
           }}
         >
           {siteData.heroTitle || 'Las Palmas'}
