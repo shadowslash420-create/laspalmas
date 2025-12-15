@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import anime from 'animejs'
 import { useOwner } from '../App'
 
@@ -67,235 +67,160 @@ const dishDetails = {
 }
 
 const BayWindowSlider = ({ items }) => {
-  const containerRef = useRef(null)
-  const [activeIndex, setActiveIndex] = useState(Math.floor(items.length / 2))
+  const sliderRef = useRef(null)
+  const trackRef = useRef(null)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [scrollLeft, setScrollLeft] = useState(0)
-  const [expandedCard, setExpandedCard] = useState(null)
+  const [currentScroll, setCurrentScroll] = useState(0)
 
-  const getCardStyle = (index) => {
-    const diff = index - activeIndex
-    const absD = Math.abs(diff)
-    
-    let translateX = diff * 280
-    let translateZ = -absD * 150
-    let rotateY = diff * -15
-    let scale = 1 - absD * 0.15
-    let opacity = 1 - absD * 0.3
-    let zIndex = 10 - absD
-    
-    if (absD > 2) {
-      opacity = 0
-      scale = 0.5
-    }
-    
-    return {
-      transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
-      opacity: Math.max(0, opacity),
-      zIndex,
-      transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-    }
-  }
-
-  const handleWheel = useCallback((e) => {
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-      e.preventDefault()
-      if (e.deltaX > 30 && activeIndex < items.length - 1) {
-        setActiveIndex(prev => prev + 1)
-      } else if (e.deltaX < -30 && activeIndex > 0) {
-        setActiveIndex(prev => prev - 1)
-      }
-    }
-  }, [activeIndex, items.length])
+  const cardWidth = 380
+  const cardGap = 30
 
   const handleMouseDown = (e) => {
     setIsDragging(true)
-    setStartX(e.pageX)
-    setScrollLeft(activeIndex)
+    setStartX(e.pageX - sliderRef.current.offsetLeft)
+    setScrollLeft(sliderRef.current.scrollLeft)
+    sliderRef.current.style.cursor = 'grabbing'
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+    if (sliderRef.current) {
+      sliderRef.current.style.cursor = 'grab'
+    }
   }
 
   const handleMouseMove = (e) => {
     if (!isDragging) return
     e.preventDefault()
-    const x = e.pageX
-    const walk = (startX - x) / 100
-    const newIndex = Math.round(scrollLeft + walk)
-    if (newIndex >= 0 && newIndex < items.length && newIndex !== activeIndex) {
-      setActiveIndex(newIndex)
-    }
-  }
-
-  const handleMouseUp = () => {
-    setIsDragging(false)
+    const x = e.pageX - sliderRef.current.offsetLeft
+    const walk = (x - startX) * 1.5
+    sliderRef.current.scrollLeft = scrollLeft - walk
   }
 
   const handleTouchStart = (e) => {
     setIsDragging(true)
-    setStartX(e.touches[0].pageX)
-    setScrollLeft(activeIndex)
+    setStartX(e.touches[0].pageX - sliderRef.current.offsetLeft)
+    setScrollLeft(sliderRef.current.scrollLeft)
   }
 
   const handleTouchMove = (e) => {
     if (!isDragging) return
-    const x = e.touches[0].pageX
-    const walk = (startX - x) / 80
-    const newIndex = Math.round(scrollLeft + walk)
-    if (newIndex >= 0 && newIndex < items.length && newIndex !== activeIndex) {
-      setActiveIndex(newIndex)
-    }
+    const x = e.touches[0].pageX - sliderRef.current.offsetLeft
+    const walk = (x - startX) * 1.5
+    sliderRef.current.scrollLeft = scrollLeft - walk
   }
 
-  const handleTouchEnd = () => {
-    setIsDragging(false)
-  }
+  const handleScroll = useCallback(() => {
+    if (sliderRef.current) {
+      setCurrentScroll(sliderRef.current.scrollLeft)
+    }
+  }, [])
 
   useEffect(() => {
-    const container = containerRef.current
-    if (container) {
-      container.addEventListener('wheel', handleWheel, { passive: false })
-      return () => container.removeEventListener('wheel', handleWheel)
+    const slider = sliderRef.current
+    if (slider) {
+      slider.addEventListener('scroll', handleScroll, { passive: true })
+      return () => slider.removeEventListener('scroll', handleScroll)
     }
-  }, [handleWheel])
+  }, [handleScroll])
 
-  const handleCardClick = (index) => {
-    if (index === activeIndex) {
-      setExpandedCard(expandedCard === index ? null : index)
-    } else {
-      setActiveIndex(index)
-      setExpandedCard(null)
+  const getCardTransform = (index) => {
+    if (!sliderRef.current) return {}
+    
+    const sliderCenter = sliderRef.current.offsetWidth / 2
+    const cardPosition = (index * (cardWidth + cardGap)) - currentScroll + (cardWidth / 2)
+    const distanceFromCenter = cardPosition - sliderCenter
+    const normalizedDistance = distanceFromCenter / sliderCenter
+    
+    const rotateY = normalizedDistance * -25
+    const translateZ = -Math.abs(normalizedDistance) * 100
+    const scale = 1 - Math.abs(normalizedDistance) * 0.15
+    const opacity = 1 - Math.abs(normalizedDistance) * 0.4
+    
+    return {
+      transform: `perspective(1200px) rotateY(${rotateY}deg) translateZ(${translateZ}px) scale(${Math.max(0.7, scale)})`,
+      opacity: Math.max(0.3, opacity),
+      zIndex: Math.round(10 - Math.abs(normalizedDistance) * 5),
     }
-  }
-
-  const currentItem = items[activeIndex]
-  const details = dishDetails[currentItem?.id] || {
-    ingredients: ['Fresh ingredients'],
-    calories: '450 kcal',
-    chefNote: 'Prepared with care',
-    prepTime: '30 min'
   }
 
   return (
-    <div className="bay-window-container">
+    <div className="bay-window-wrapper">
       <div
-        ref={containerRef}
-        className="bay-window-slider"
+        ref={sliderRef}
+        className="bay-window-scroll-container"
         onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onMouseMove={handleMouseMove}
         onTouchStart={handleTouchStart}
+        onTouchEnd={handleMouseUp}
         onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
       >
-        <div className="bay-window-track">
+        <div 
+          ref={trackRef}
+          className="bay-window-scroll-track"
+          style={{ 
+            width: `${items.length * (cardWidth + cardGap) + 200}px`,
+            paddingLeft: '100px',
+            paddingRight: '100px',
+          }}
+        >
           {items.map((item, index) => {
             const image = menuImages[item.id] || item.image
             const poetic = poeticLines[item.id] || item.poetic || item.origin
-            const isActive = index === activeIndex
-            const isExpanded = expandedCard === index
+            const details = dishDetails[item.id] || { calories: '450 kcal', prepTime: '30 min' }
+            const cardStyle = getCardTransform(index)
             
             return (
               <div
                 key={item.id}
-                className={`bay-window-card ${isActive ? 'active' : ''} ${isExpanded ? 'expanded' : ''}`}
-                style={getCardStyle(index)}
-                onClick={() => handleCardClick(index)}
+                className="bay-window-scroll-card"
+                style={{
+                  width: `${cardWidth}px`,
+                  marginRight: `${cardGap}px`,
+                  ...cardStyle,
+                }}
               >
-                <div className="card-inner">
-                  <div className="card-image">
-                    {image && (
-                      <img 
-                        src={image} 
-                        alt={item.title}
-                        draggable={false}
-                      />
-                    )}
-                    <div className="card-overlay" />
-                    <div className="card-border" />
-                  </div>
-                  
-                  <div className="card-content">
-                    <p className="card-category">{item.category}</p>
-                    <h3 className="card-title">{item.title}</h3>
-                    {isActive && (
-                      <p className="card-hint">
-                        {isExpanded ? 'Tap to close' : 'Tap for details'}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="card-price">
-                    <span>{item.price}</span>
-                  </div>
-
-                  {isExpanded && isActive && (
-                    <div className="card-details">
-                      <p className="details-description">{item.description}</p>
-                      <div className="details-meta">
-                        <span>{details.calories}</span>
-                        <span className="divider">|</span>
-                        <span>{details.prepTime}</span>
-                      </div>
-                      <p className="details-note">"{poetic}"</p>
-                    </div>
+                <div className="card-image-container">
+                  {image && (
+                    <img 
+                      src={image} 
+                      alt={item.title}
+                      draggable={false}
+                    />
                   )}
+                  <div className="card-gradient-overlay" />
+                </div>
+                
+                <div className="card-info">
+                  <span className="card-category">{item.category}</span>
+                  <h3 className="card-title">{item.title}</h3>
+                  <p className="card-description">{item.description}</p>
+                  <div className="card-meta">
+                    <span>{details.calories}</span>
+                    <span className="meta-divider">•</span>
+                    <span>{details.prepTime}</span>
+                  </div>
+                  <p className="card-poetic">"{poetic}"</p>
+                </div>
+                
+                <div className="card-price-tag">
+                  <span>{item.price}</span>
                 </div>
               </div>
             )
           })}
         </div>
       </div>
-
-      <div className="slider-nav">
-        {items.map((_, index) => (
-          <button
-            key={index}
-            className={`nav-dot ${index === activeIndex ? 'active' : ''}`}
-            onClick={() => {
-              setActiveIndex(index)
-              setExpandedCard(null)
-            }}
-          />
-        ))}
+      
+      <div className="scroll-indicator">
+        <span className="indicator-arrow">←</span>
+        <span className="indicator-text">Scroll to explore</span>
+        <span className="indicator-arrow">→</span>
       </div>
-
-      <div className="slider-arrows">
-        <button
-          className="arrow-btn prev"
-          onClick={() => {
-            if (activeIndex > 0) {
-              setActiveIndex(activeIndex - 1)
-              setExpandedCard(null)
-            }
-          }}
-          disabled={activeIndex === 0}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <button
-          className="arrow-btn next"
-          onClick={() => {
-            if (activeIndex < items.length - 1) {
-              setActiveIndex(activeIndex + 1)
-              setExpandedCard(null)
-            }
-          }}
-          disabled={activeIndex === items.length - 1}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
-
-      <p className="scroll-hint">
-        <span className="hint-icon">↔</span>
-        Scroll or drag to explore
-      </p>
     </div>
   )
 }
@@ -306,11 +231,17 @@ const Menu = () => {
   const subtitleRef = useRef(null)
   const [activeFilter, setActiveFilter] = useState('All')
 
-  const categories = ['All', ...new Set(siteData.menuItems.map(item => item.category))]
+  const categories = useMemo(() => 
+    ['All', ...new Set(siteData.menuItems.map(item => item.category))],
+    [siteData.menuItems]
+  )
   
-  const filteredItems = activeFilter === 'All' 
-    ? siteData.menuItems 
-    : siteData.menuItems.filter(item => item.category === activeFilter)
+  const filteredItems = useMemo(() => 
+    activeFilter === 'All' 
+      ? siteData.menuItems 
+      : siteData.menuItems.filter(item => item.category === activeFilter),
+    [activeFilter, siteData.menuItems]
+  )
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -347,7 +278,7 @@ const Menu = () => {
   }, [])
 
   return (
-    <section id="menu" className="relative py-20 md:py-32 lg:py-40 px-4 md:px-8 lg:px-16 bg-dark-900 overflow-hidden">
+    <section id="menu" className="relative py-20 md:py-32 lg:py-40 bg-dark-900 overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-600/3 rounded-full filter blur-[200px]" />
         <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-gold-500/2 rounded-full filter blur-[180px]" />
@@ -360,13 +291,13 @@ const Menu = () => {
         }}
       />
 
-      <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-12 md:mb-20 lg:mb-28">
+      <div className="max-w-7xl mx-auto relative z-10 px-4 md:px-8 lg:px-16">
+        <div className="text-center mb-12 md:mb-20 lg:mb-24">
           <p 
             ref={subtitleRef}
             className="font-sans text-gold-500/40 text-xs tracking-[0.5em] uppercase mb-6 md:mb-8 opacity-0"
           >
-            Interactive Gallery
+            Our Signature Dishes
           </p>
           <h2 
             ref={titleRef}
@@ -377,7 +308,7 @@ const Menu = () => {
           </h2>
         </div>
 
-        <div className="flex justify-center mb-10 md:mb-16 lg:mb-20">
+        <div className="flex justify-center mb-10 md:mb-16">
           <div className="category-carousel">
             {categories.map(category => (
               <button
@@ -390,9 +321,9 @@ const Menu = () => {
             ))}
           </div>
         </div>
-
-        <BayWindowSlider items={filteredItems} />
       </div>
+
+      <BayWindowSlider items={filteredItems} />
     </section>
   )
 }
