@@ -810,3 +810,28 @@ input:focus, select:focus, textarea:focus {
     display: none;
   }
 }
+
+.parallax-hero-image {
+  will-change: transform, opacity;
+  transform-origin: center center;
+}
+
+.parallax-hero-image img {
+  filter: brightness(0.8) contrast(1.1);
+}
+
+.parallax-text-reveal {
+  will-change: opacity;
+}
+
+.parallax-text-reveal h2 {
+  will-change: transform, opacity;
+}
+
+.parallax-text-reveal p {
+  will-change: transform, opacity;
+}
+
+.parallax-progress {
+  background: rgba(10, 10, 10, 0.5);
+}
