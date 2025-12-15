@@ -220,7 +220,7 @@ const Interactive3DObject = ({ className = '' }) => {
     <div 
       ref={containerRef}
       className={`w-full h-full ${className}`}
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: 'none', position: 'relative', zIndex: 10 }}
     >
       <WebGLErrorBoundary fallback={<Fallback />}>
         <Canvas
@@ -232,7 +232,15 @@ const Interactive3DObject = ({ className = '' }) => {
             powerPreference: 'high-performance',
             failIfMajorPerformanceCaveat: false
           }}
-          style={{ background: 'transparent' }}
+          style={{ 
+            background: 'transparent', 
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            zIndex: 10
+          }}
         >
           <Scene mousePosition={mousePosition} />
         </Canvas>

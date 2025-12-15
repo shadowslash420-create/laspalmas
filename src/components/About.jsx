@@ -49,7 +49,7 @@ const About = () => {
   return (
     <section 
       ref={sectionRef}
-      className="relative py-32 md:py-40 px-6 md:px-16 lg:px-24 bg-dark-800 overflow-hidden"
+      className="relative py-32 md:py-40 px-6 md:px-16 lg:px-24 bg-dark-800 overflow-hidden z-10"
     >
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-gold-600/20 to-transparent" />
@@ -91,10 +91,9 @@ const About = () => {
           ref={imageRef}
           className="relative opacity-0"
         >
-          <div className="relative aspect-[4/5] bg-dark-700 rounded-sm overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-gold-600/10 via-transparent to-bronze-500/10" />
+          <div className="relative aspect-[4/5] bg-dark-700 rounded-sm" style={{ isolation: 'isolate' }}>
             <Suspense fallback={
-              <div className="absolute inset-0 flex items-center justify-center">
+              <div className="absolute inset-0 flex items-center justify-center z-10">
                 <div className="text-center">
                   <div className="font-serif text-8xl md:text-9xl text-gold-400/30 mb-4">LP</div>
                   <div className="w-16 h-px bg-gold-500/30 mx-auto mb-4" />
@@ -102,9 +101,9 @@ const About = () => {
                 </div>
               </div>
             }>
-              <Interactive3DObject className="absolute inset-0" />
+              <Interactive3DObject className="absolute inset-0 z-20" />
             </Suspense>
-            <div className="absolute bottom-4 left-4 right-4 text-center pointer-events-none">
+            <div className="absolute bottom-4 left-4 right-4 text-center pointer-events-none z-30">
               <p className="text-sand-200/30 text-xs tracking-[0.2em] uppercase">Move cursor to interact</p>
             </div>
           </div>
