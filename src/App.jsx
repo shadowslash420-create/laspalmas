@@ -101,7 +101,6 @@ function App() {
                   { label: "Home", href: "#" },
                   { label: "Menu", href: "#menu" },
                   { label: "About", href: "#about" },
-                  { label: "Reserve", href: "#reservation" },
                 ]}
                 particleCount={15}
                 particleDistances={[90, 10]}

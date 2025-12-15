@@ -1,33 +1,9 @@
-import React, { useEffect, useRef, useState, useCallback, Suspense } from 'react'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useOwner } from '../App'
 
 gsap.registerPlugin(ScrollTrigger)
-
-const Antigravity = React.lazy(() => import('./Antigravity'))
-
-function AntigravityFallback() {
-  return null
-}
-
-class AntigravityErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { hasError: false }
-  }
-
-  static getDerivedStateFromError() {
-    return { hasError: true }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return null
-    }
-    return this.props.children
-  }
-}
 
 const Hero = () => {
   const { siteData } = useOwner()
@@ -95,27 +71,6 @@ const Hero = () => {
         }}
       />
 
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{ opacity: textOpacity }}
-      >
-        <AntigravityErrorBoundary>
-          <Suspense fallback={<AntigravityFallback />}>
-            <Antigravity
-              count={300}
-              magnetRadius={6}
-              ringRadius={7}
-              waveSpeed={0.4}
-              waveAmplitude={1}
-              particleSize={1.5}
-              lerpSpeed={0.05}
-              color={'#d4a012'}
-              autoAnimate={true}
-              particleVariance={1}
-            />
-          </Suspense>
-        </AntigravityErrorBoundary>
-      </div>
 
       <div 
         className="absolute inset-0 flex flex-col items-center justify-center text-center px-6"
