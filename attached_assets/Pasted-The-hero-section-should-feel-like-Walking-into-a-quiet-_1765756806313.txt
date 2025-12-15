@@ -1,0 +1,158 @@
+The hero section should feel like:
+
+Walking into a quiet, elegant restaurant at sunset
+
+Soft shadows
+
+Polished wood
+
+Warm gold light
+
+Text floats gently over the Sketchfab 3D interior.
+Nothing moves fast.
+
+🎯 Purpose: Mental imagery
+💰 Value: First impression dominance
+
+3️⃣ MENU IMAGES MUST EXIST — IMAGE GENERATION PROMPT
+
+This is CRITICAL. No placeholders.
+
+Generate luxury food images using AI (DALL·E / Midjourney-style prompts).
+
+All menu images must:
+
+Be photorealistic
+
+Shot in cinematic restaurant lighting
+
+Dark background, warm highlights
+
+Minimal props
+
+Consistent style across all dishes
+
+🎯 Purpose: Desire creation
+💰 Value: Visual credibility
+
+4️⃣ ACTUAL FOOD IMAGE PROMPTS (COPY–PASTE READY)
+
+Use these prompts to generate the menu images:
+
+🍖 Grilled Meat Dish
+
+Photorealistic fine-dining grilled meat dish, Algerian-Mediterranean style, served on a dark ceramic plate, warm golden restaurant lighting, shallow depth of field, luxury food photography, cinematic mood, 4K
+
+🐟 Seafood Dish
+
+Elegant seafood dish inspired by Mediterranean cuisine, fresh fish, subtle herbs, dark plate, soft warm light, fine dining presentation, luxury restaurant photography, cinematic shadows, ultra-realistic
+
+🍲 Traditional Algerian Dish
+
+Traditional Algerian dish presented in a modern fine-dining style, ceramic bowl, warm ambient lighting, rich textures, cinematic food photography, luxury restaurant atmosphere, realistic, high detail
+
+🍰 Dessert
+
+Luxury dessert plated artistically, dark background, soft warm highlights, minimalist fine-dining style, cinematic food photography, elegant and refined, ultra-realistic, 4K
+
+5️⃣ MENU AS A GALLERY — VISION PROMPT
+
+The menu section should feel like:
+
+Walking through a private art gallery
+
+Each dish is a framed piece
+
+Image appears first
+
+Name appears second
+
+Description appears last
+
+The user should want the dish before reading it.
+
+🎯 Purpose: Emotional conversion
+💰 Value: Premium UX
+
+6️⃣ MENU INTERACTION PROMPT
+
+When a user hovers on a menu image:
+
+Light subtly sweeps across the plate
+
+Image lifts slightly in 3D space
+
+Description fades in slowly
+
+Motion must feel expensive and restrained.
+
+🎯 Purpose: Tactile illusion
+💰 Value: Craftsmanship feel
+
+7️⃣ STORYTELLING PER DISH PROMPT
+
+Each menu item should include a short poetic line:
+
+Origin
+
+Freshness
+
+Craft
+
+Example:
+“Prepared slowly, inspired by the Mediterranean, served with intention.”
+
+🎯 Purpose: Memory creation
+💰 Value: Brand depth
+
+8️⃣ CONSISTENCY PROMPT (THIS MAKES IT $50K)
+
+Ensure absolute consistency:
+
+All menu images use the same lighting direction
+
+Same depth of field
+
+Same color temperature
+
+Nothing should feel random.
+
+🎯 Purpose: Visual coherence
+💰 Value: Professional polish
+
+9️⃣ MOBILE VISION PROMPT
+
+On mobile:
+
+Images are dominant
+
+Text is minimal
+
+Scrolling feels like flipping a luxury magazine
+
+No clutter. No rush.
+
+🎯 Purpose: Mobile prestige
+💰 Value: Real-world usability
+
+🔟 “I CAN SEE IT” FINAL PROMPT
+
+Build the website so that:
+
+Even without reading
+
+Even without understanding the language
+
+The user immediately understands:
+This is a refined restaurant in Oran worth visiting.
+
+🎯 Purpose: Universal communication
+💰 Value: International appeal
+
+🧠 KEY INSIGHT (IMPORTANT)
+
+Luxury websites don’t explain.
+They show, pause, and invite.
+
+Menu images are non-negotiable.
+They are the visual proof of value.
