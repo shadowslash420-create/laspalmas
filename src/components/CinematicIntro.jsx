@@ -158,7 +158,7 @@ const CinematicIntro = ({ onEnter }) => {
         <div ref={contentRef} className="relative z-10 text-center px-6" style={{ opacity: 0 }}>
           <h1 
             ref={titleRef}
-            className="font-serif text-7xl md:text-9xl lg:text-[12rem] font-light text-gold-400 tracking-[0.15em] mb-8"
+            className="font-serif text-5xl sm:text-7xl md:text-9xl lg:text-[12rem] font-light text-gold-400 tracking-[0.1em] sm:tracking-[0.15em] mb-6 sm:mb-8"
             style={{ 
               textShadow: '0 0 80px rgba(212, 160, 18, 0.3)',
               perspective: '1000px'
@@ -177,7 +177,7 @@ const CinematicIntro = ({ onEnter }) => {
           <button
             ref={buttonRef}
             onClick={handleEnter}
-            className="group relative px-12 py-5 bg-transparent border border-gold-500/40 text-gold-400/80 font-sans text-xs uppercase tracking-[0.3em] overflow-hidden transition-all duration-700 hover:border-gold-500/80 hover:text-gold-400 opacity-0"
+            className="group relative px-8 py-4 sm:px-12 sm:py-5 bg-transparent border border-gold-500/40 text-gold-400/80 font-sans text-xs uppercase tracking-[0.2em] sm:tracking-[0.3em] overflow-hidden transition-all duration-700 hover:border-gold-500/80 hover:text-gold-400 opacity-0"
           >
             <span className="relative z-10">Enter Experience</span>
             <div className="absolute inset-0 bg-gold-500/5 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />

@@ -31,20 +31,20 @@ const MusicPlayer = () => {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-dark-900/80 backdrop-blur-sm border border-gold-500/30 rounded-full px-4 py-2">
+    <div className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 flex items-center gap-2 md:gap-3 bg-dark-900/80 backdrop-blur-sm border border-gold-500/30 rounded-full px-3 py-1.5 md:px-4 md:py-2">
       <audio ref={audioRef} loop src="/background-music.mp3" />
       
       <button
         onClick={togglePlay}
-        className="w-10 h-10 flex items-center justify-center text-gold-400 hover:text-gold-300 transition-colors"
+        className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-gold-400 hover:text-gold-300 transition-colors"
         aria-label={isPlaying ? 'Pause music' : 'Play music'}
       >
         {isPlaying ? (
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
             <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
           </svg>
         ) : (
-          <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 md:w-6 md:h-6" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />
           </svg>
         )}
@@ -57,10 +57,10 @@ const MusicPlayer = () => {
         step="0.1"
         value={volume}
         onChange={(e) => setVolume(parseFloat(e.target.value))}
-        className="w-16 h-1 bg-gold-500/30 rounded-full appearance-none cursor-pointer accent-gold-500"
+        className="w-12 md:w-16 h-1 bg-gold-500/30 rounded-full appearance-none cursor-pointer accent-gold-500"
       />
       
-      <span className="text-gold-500/60 text-xs uppercase tracking-wider">Music</span>
+      <span className="hidden md:inline text-gold-500/60 text-xs uppercase tracking-wider">Music</span>
     </div>
   )
 }

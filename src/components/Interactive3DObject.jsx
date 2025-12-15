@@ -69,8 +69,11 @@ const GoldenFork = ({ mousePosition }) => {
     emissiveIntensity: 0.15
   }
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+  const forkScale = isMobile ? 0.35 : 0.5
+
   return (
-    <group ref={meshRef} scale={0.5} rotation={[0, 0, Math.PI / 4]}>
+    <group ref={meshRef} scale={forkScale} rotation={[0, 0, Math.PI / 4]}>
       <mesh castShadow position={[0, -0.8, 0]}>
         <cylinderGeometry args={[0.06, 0.08, 1.2, 16]} />
         <meshStandardMaterial {...goldMaterial} />
