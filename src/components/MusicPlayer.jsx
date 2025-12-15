@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 
 const MusicPlayer = () => {
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(true)
   const [volume, setVolume] = useState(0.3)
   const audioRef = useRef(null)
 
@@ -10,6 +10,14 @@ const MusicPlayer = () => {
       audioRef.current.volume = volume
     }
   }, [volume])
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.play().catch(() => {
+        setIsPlaying(false)
+      })
+    }
+  }, [])
 
   const togglePlay = () => {
     if (audioRef.current) {
