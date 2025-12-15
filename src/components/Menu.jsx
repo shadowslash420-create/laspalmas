@@ -303,20 +303,32 @@ const Menu = () => {
           </h2>
         </div>
 
-        <div className="flex justify-center gap-3 md:gap-8 lg:gap-12 mb-10 md:mb-16 lg:mb-20 flex-wrap px-2">
-          {categories.map(category => (
-            <button
-              key={category}
-              onClick={() => setActiveFilter(category)}
-              className={`font-sans text-[10px] md:text-xs tracking-[0.2em] md:tracking-[0.25em] uppercase transition-all duration-700 py-2 px-1 border-b-2 ${
-                activeFilter === category 
-                  ? 'text-gold-400 border-gold-500/60' 
-                  : 'text-sand-300/30 border-transparent hover:text-sand-300/60 hover:border-gold-500/20'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+        <div className="flex justify-center mb-10 md:mb-16 lg:mb-20">
+          <div 
+            className="radio-container font-sans"
+            style={{ '--total-radio': categories.length }}
+          >
+            {categories.map((category, index) => (
+              <div key={category}>
+                <input
+                  type="radio"
+                  id={`category-${category}`}
+                  name="category-filter"
+                  checked={activeFilter === category}
+                  onChange={() => setActiveFilter(category)}
+                />
+                <label htmlFor={`category-${category}`}>
+                  {category}
+                </label>
+              </div>
+            ))}
+            <div className="glider-container">
+              <div 
+                className="glider"
+                style={{ transform: `translateY(${categories.indexOf(activeFilter) * 100}%)` }}
+              />
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
