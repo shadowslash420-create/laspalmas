@@ -1,6 +1,4 @@
-import { useRef, useEffect, useState, useMemo } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useRef, useEffect, useState } from 'react'
 import anime from 'animejs'
 import { useOwner } from '../App'
 
@@ -10,8 +8,6 @@ import couscousImg from '@assets/generated_images/couscous_royal_fine_dining.png
 import paellaImg from '@assets/generated_images/luxury_seafood_paella.png'
 import tenderloinImg from '@assets/generated_images/premium_beef_tenderloin.png'
 import baklavaImg from '@assets/generated_images/luxury_baklava_dessert.png'
-
-gsap.registerPlugin(ScrollTrigger)
 
 const menuImages = {
   1: lambChopsImg,
@@ -31,120 +27,243 @@ const poeticLines = {
   6: 'Sweetness that whispers of Ottoman gardens.',
 }
 
-const dishDetails = {
-  1: { calories: '580 kcal', prepTime: '45 min' },
-  2: { calories: '420 kcal', prepTime: '30 min' },
-  3: { calories: '720 kcal', prepTime: '55 min' },
-  4: { calories: '650 kcal', prepTime: '40 min' },
-  5: { calories: '520 kcal', prepTime: '35 min' },
-  6: { calories: '380 kcal', prepTime: '15 min' }
-}
-
-const BayWindowSlider = ({ items }) => {
+const BayWindowCarousel = ({ items }) => {
+  const carouselRef = useRef(null)
   const containerRef = useRef(null)
-  const trackRef = useRef(null)
-  const cardsRef = useRef([])
+  const [currentRotation, setCurrentRotation] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(0)
+  
+  const itemCount = items.length
+  const rotationStep = 360 / itemCount
+  const translateZ = 400
 
   useEffect(() => {
-    if (!containerRef.current || !trackRef.current) return
+    const handleScroll = () => {
+      if (!containerRef.current) return
+      
+      const rect = containerRef.current.getBoundingClientRect()
+      const windowHeight = window.innerHeight
+      const elementCenter = rect.top + rect.height / 2
+      const distanceFromCenter = windowHeight / 2 - elementCenter
+      
+      if (rect.top < windowHeight && rect.bottom > 0) {
+        const scrollProgress = distanceFromCenter / (windowHeight / 2)
+        const rotation = scrollProgress * 60
+        setCurrentRotation(rotation)
+      }
+    }
 
-    const cards = cardsRef.current.filter(Boolean)
-    const cardWidth = 380
-    const totalWidth = cards.length * cardWidth
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
-    const ctx = gsap.context(() => {
-      gsap.set(cards, {
-        rotateY: (i) => i * 15,
-        transformOrigin: '50% 50%',
-        z: -200,
-      })
+  const navigateTo = (index) => {
+    setActiveIndex(index)
+    const targetRotation = -index * rotationStep
+    setCurrentRotation(targetRotation)
+  }
 
-      gsap.to(trackRef.current, {
-        x: () => -(totalWidth - window.innerWidth + 200),
-        ease: 'none',
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top 20%',
-          end: () => `+=${totalWidth}`,
-          scrub: 1,
-          pin: true,
-          anticipatePin: 1,
-        }
-      })
+  const navigateNext = () => {
+    const nextIndex = (activeIndex + 1) % itemCount
+    navigateTo(nextIndex)
+  }
 
-      cards.forEach((card, i) => {
-        gsap.to(card, {
-          rotateY: 0,
-          z: 0,
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: `top+=${i * 150} 40%`,
-            end: `top+=${i * 150 + 300} 40%`,
-            scrub: 1,
-          }
-        })
-      })
-    }, containerRef)
-
-    return () => ctx.revert()
-  }, [items])
+  const navigatePrev = () => {
+    const prevIndex = (activeIndex - 1 + itemCount) % itemCount
+    navigateTo(prevIndex)
+  }
 
   return (
-    <div ref={containerRef} className="bay-window-container relative overflow-hidden" style={{ minHeight: '100vh' }}>
-      <div 
-        ref={trackRef}
-        className="bay-window-track flex items-center gap-8 px-20"
-        style={{ 
-          perspective: '1200px',
-          transformStyle: 'preserve-3d',
-        }}
-      >
-        {items.map((item, index) => {
-          const image = menuImages[item.id] || item.image
-          const poetic = poeticLines[item.id] || item.origin
-          const details = dishDetails[item.id] || { calories: '450 kcal', prepTime: '30 min' }
+    <>
+      <style>
+        {`
+          .bay-window-container {
+            width: 100%;
+            height: 500px;
+            position: relative;
+            perspective: 1200px;
+            perspective-origin: 50% 50%;
+          }
           
-          return (
-            <div
-              key={item.id}
-              ref={el => cardsRef.current[index] = el}
-              className="bay-card flex-shrink-0 w-[380px] bg-dark-800/80 backdrop-blur-sm rounded-xl overflow-hidden border border-gold-500/20 shadow-2xl"
-              style={{
-                transformStyle: 'preserve-3d',
-                backfaceVisibility: 'hidden',
-              }}
-            >
-              <div className="relative h-56 overflow-hidden">
-                {image && (
-                  <img 
-                    src={image} 
-                    alt={item.title}
-                    className="w-full h-full object-cover"
-                    draggable={false}
-                  />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-transparent to-transparent" />
-                <div className="absolute top-4 right-4 bg-dark-900/80 backdrop-blur-sm px-4 py-2 rounded-full">
-                  <span className="text-gold-400 font-semibold">{item.price}</span>
-                </div>
-              </div>
+          .bay-window-carousel {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          }
+          
+          .bay-window-item {
+            position: absolute;
+            width: 300px;
+            height: 400px;
+            left: 50%;
+            top: 50%;
+            margin-left: -150px;
+            margin-top: -200px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            transition: opacity 0.5s, box-shadow 0.5s;
+            cursor: pointer;
+          }
+          
+          .bay-window-item:hover {
+            box-shadow: 0 30px 60px rgba(212, 160, 18, 0.3);
+          }
+          
+          .bay-window-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+          
+          .bay-window-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(212, 160, 18, 0.2);
+            border: 1px solid rgba(212, 160, 18, 0.4);
+            color: #d4a012;
+            font-size: 2rem;
+            padding: 15px 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            z-index: 20;
+            backdrop-filter: blur(10px);
+          }
+          
+          .bay-window-nav:hover {
+            background: rgba(212, 160, 18, 0.4);
+            box-shadow: 0 0 30px rgba(212, 160, 18, 0.3);
+          }
+          
+          .bay-window-prev { left: 20px; }
+          .bay-window-next { right: 20px; }
+          
+          .bay-window-dots {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 30px;
+          }
+          
+          .bay-window-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(212, 160, 18, 0.2);
+            border: 1px solid rgba(212, 160, 18, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+          }
+          
+          .bay-window-dot.active {
+            background: #d4a012;
+            box-shadow: 0 0 15px rgba(212, 160, 18, 0.5);
+          }
+          
+          .bay-window-dot:hover {
+            background: rgba(212, 160, 18, 0.5);
+          }
+
+          @media (max-width: 768px) {
+            .bay-window-container {
+              height: 400px;
+              perspective: 800px;
+            }
+            .bay-window-item {
+              width: 240px;
+              height: 320px;
+              margin-left: -120px;
+              margin-top: -160px;
+            }
+            .bay-window-nav {
+              padding: 10px 15px;
+              font-size: 1.5rem;
+            }
+            .bay-window-prev { left: 5px; }
+            .bay-window-next { right: 5px; }
+          }
+        `}
+      </style>
+      
+      <div ref={containerRef} className="relative py-10">
+        <div className="bay-window-container">
+          <div 
+            ref={carouselRef}
+            className="bay-window-carousel"
+            style={{
+              transform: `translateZ(-${translateZ}px) rotateY(${currentRotation}deg)`
+            }}
+          >
+            {items.map((item, index) => {
+              const image = menuImages[item.id] || item.image
+              const itemRotation = index * rotationStep
               
-              <div className="p-6">
-                <span className="text-gold-500/60 text-xs uppercase tracking-[0.3em]">{item.category}</span>
-                <h3 className="font-serif text-2xl text-gold-400 mt-2 mb-3">{item.title}</h3>
-                <p className="text-sand-300/70 text-sm leading-relaxed mb-4">{item.description}</p>
-                <div className="flex items-center gap-4 text-sand-400/50 text-xs mb-4">
-                  <span>{details.calories}</span>
-                  <span>•</span>
-                  <span>{details.prepTime}</span>
+              return (
+                <div
+                  key={item.id}
+                  className="bay-window-item"
+                  style={{
+                    transform: `rotateY(${itemRotation}deg) translateZ(${translateZ}px)`
+                  }}
+                  onClick={() => navigateTo(index)}
+                >
+                  {image && (
+                    <img src={image} alt={item.title} />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent" />
+                  <div className="absolute inset-0 border border-gold-500/30 rounded-xl pointer-events-none" />
+                  
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <p className="text-gold-500/70 text-xs tracking-[0.3em] uppercase mb-2">
+                      {item.category}
+                    </p>
+                    <h3 
+                      className="font-serif text-2xl text-gold-400 mb-2"
+                      style={{ textShadow: '0 2px 20px rgba(0,0,0,0.8)' }}
+                    >
+                      {item.title}
+                    </h3>
+                    <p className="font-sans text-sand-200/60 text-sm mb-3 line-clamp-2">
+                      {item.description}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gold-400 font-serif text-xl">{item.price}</span>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-gold-500/40 text-sm italic">"{poetic}"</p>
-              </div>
-            </div>
-          )
-        })}
+              )
+            })}
+          </div>
+          
+          <button 
+            className="bay-window-nav bay-window-prev"
+            onClick={navigatePrev}
+          >
+            ‹
+          </button>
+          <button 
+            className="bay-window-nav bay-window-next"
+            onClick={navigateNext}
+          >
+            ›
+          </button>
+        </div>
+        
+        <div className="bay-window-dots">
+          {items.map((_, index) => (
+            <button
+              key={index}
+              className={`bay-window-dot ${index === activeIndex ? 'active' : ''}`}
+              onClick={() => navigateTo(index)}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -154,17 +273,11 @@ const Menu = () => {
   const subtitleRef = useRef(null)
   const [activeFilter, setActiveFilter] = useState('All')
 
-  const categories = useMemo(() => 
-    ['All', ...new Set(siteData.menuItems.map(item => item.category))],
-    [siteData.menuItems]
-  )
+  const categories = ['All', ...new Set(siteData.menuItems.map(item => item.category))]
   
-  const filteredItems = useMemo(() => 
-    activeFilter === 'All' 
-      ? siteData.menuItems 
-      : siteData.menuItems.filter(item => item.category === activeFilter),
-    [activeFilter, siteData.menuItems]
-  )
+  const filteredItems = activeFilter === 'All' 
+    ? siteData.menuItems 
+    : siteData.menuItems.filter(item => item.category === activeFilter)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -201,18 +314,26 @@ const Menu = () => {
   }, [])
 
   return (
-    <section id="menu" className="relative bg-dark-900 overflow-hidden">
+    <section id="menu" className="relative py-20 md:py-32 lg:py-40 px-4 md:px-8 lg:px-16 bg-dark-900 overflow-hidden">
       <div className="absolute inset-0">
         <div className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-600/3 rounded-full filter blur-[200px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-gold-500/2 rounded-full filter blur-[180px]" />
       </div>
 
-      <div className="relative z-10 pt-20 md:pt-32 lg:pt-40 px-4 md:px-8 lg:px-16">
-        <div className="text-center mb-12 md:mb-20">
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-[0.015]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        }}
+      />
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="text-center mb-12 md:mb-20 lg:mb-28">
           <p 
             ref={subtitleRef}
             className="font-sans text-gold-500/40 text-xs tracking-[0.5em] uppercase mb-6 md:mb-8 opacity-0"
           >
-            Our Signature Dishes
+            Interactive Gallery
           </p>
           <h2 
             ref={titleRef}
@@ -223,26 +344,22 @@ const Menu = () => {
           </h2>
         </div>
 
-        <div className="flex justify-center mb-10 md:mb-16">
-          <div className="flex gap-4 flex-wrap justify-center">
+        <div className="flex justify-center mb-10 md:mb-16 lg:mb-20">
+          <div className="category-carousel">
             {categories.map(category => (
               <button
                 key={category}
                 onClick={() => setActiveFilter(category)}
-                className={`px-6 py-2 text-xs uppercase tracking-widest border rounded-full transition-all duration-300 ${
-                  activeFilter === category 
-                    ? 'bg-gold-500/20 border-gold-500 text-gold-400' 
-                    : 'border-gold-500/30 text-gold-500/60 hover:border-gold-500/60'
-                }`}
+                className={`category-pill font-sans ${activeFilter === category ? 'active' : ''}`}
               >
                 {category}
               </button>
             ))}
           </div>
         </div>
-      </div>
 
-      <BayWindowSlider items={filteredItems} />
+        <BayWindowCarousel items={filteredItems} />
+      </div>
     </section>
   )
 }
