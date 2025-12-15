@@ -12,6 +12,7 @@ import ParallaxSection from './components/ParallaxSection'
 import Scene3D from './components/Scene3D'
 import AmbientLighting from './components/AmbientLighting'
 import Interactive3DObject from './components/Interactive3DObject'
+import ScrollIndicator from './components/ScrollIndicator'
 
 export const OwnerContext = createContext({
   isOwnerMode: false,
@@ -95,6 +96,7 @@ function App() {
           <div className={`transition-opacity duration-1000 ${hasEntered ? 'opacity-100' : 'opacity-0'}`}>
             <Scene3D />
             <AmbientLighting />
+            {hasEntered && <ScrollIndicator />}
             
             <div data-section="hero">
               <Hero />

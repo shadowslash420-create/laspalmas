@@ -29,7 +29,8 @@ A cinematic, luxury digital experience for Las Palmas, a high-end restaurant in 
 │   │   ├── SketchfabEmbed.jsx    # 3D model integration component
 │   │   ├── Scene3D.jsx           # Scroll-reactive 3D scene with transforms
 │   │   ├── AmbientLighting.jsx   # Dynamic lighting overlay based on scroll
-│   │   └── ParallaxSection.jsx   # Scroll-based parallax wrapper
+│   │   ├── ParallaxSection.jsx   # Scroll-based parallax wrapper
+│   │   └── ScrollIndicator.jsx   # Animated scroll indicator on hero
 │   ├── hooks/
 │   │   └── useScrollProgress.jsx # Scroll tracking context and hook
 │   └── animations/
@@ -57,6 +58,8 @@ A cinematic, luxury digital experience for Las Palmas, a high-end restaurant in 
 - Sections with subtle parallax depth
 - Text moves slower than visuals
 - No harsh snapping, everything floats
+- Elegant scroll indicator with gold styling and gentle animations
+- Indicator fades out as user scrolls down
 
 ### 3D as a Living Character
 - Fixed 3D scene responds to scroll with subtle transforms
