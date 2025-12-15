@@ -1,36 +1,77 @@
 import { useEffect, useRef, useState } from 'react'
 import anime from 'animejs'
 
+const Loader = () => (
+  <div className="loader">
+    <div className="text"><span>Loading</span></div>
+    <div className="text"><span>Loading</span></div>
+    <div className="text"><span>Loading</span></div>
+    <div className="text"><span>Loading</span></div>
+    <div className="text"><span>Loading</span></div>
+    <div className="text"><span>Loading</span></div>
+    <div className="text"><span>Loading</span></div>
+    <div className="text"><span>Loading</span></div>
+    <div className="text"><span>Loading</span></div>
+    <div className="line"></div>
+  </div>
+)
+
 const CinematicIntro = ({ onEnter }) => {
+  const [isLoading, setIsLoading] = useState(true)
   const [isRevealed, setIsRevealed] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
   const containerRef = useRef(null)
+  const loaderRef = useRef(null)
+  const contentRef = useRef(null)
   const titleRef = useRef(null)
   const subtitleRef = useRef(null)
   const buttonRef = useRef(null)
   const grainRef = useRef(null)
 
   useEffect(() => {
-    const timeline = anime.timeline({
+    anime({
+      targets: containerRef.current,
+      opacity: [0, 1],
+      duration: 800,
       easing: 'easeOutCubic',
     })
 
-    timeline
-      .add({
-        targets: containerRef.current,
-        opacity: [0, 1],
-        duration: 1500,
+    const loadingTimer = setTimeout(() => {
+      anime({
+        targets: loaderRef.current,
+        opacity: [1, 0],
+        duration: 600,
+        easing: 'easeOutCubic',
+        complete: () => {
+          setIsLoading(false)
+        }
       })
-      .add({
+    }, 2500)
+
+    return () => clearTimeout(loadingTimer)
+  }, [])
+
+  useEffect(() => {
+    if (!isLoading && contentRef.current) {
+      anime({
+        targets: contentRef.current,
+        opacity: [0, 1],
+        duration: 800,
+        easing: 'easeOutCubic',
+      })
+
+      anime({
         targets: grainRef.current,
         opacity: [0, 0.04],
         duration: 800,
-      }, '-=1000')
+        easing: 'easeOutCubic',
+      })
 
-    setTimeout(() => {
-      setIsRevealed(true)
-    }, 1800)
-  }, [])
+      setTimeout(() => {
+        setIsRevealed(true)
+      }, 300)
+    }
+  }, [isLoading])
 
   useEffect(() => {
     if (isRevealed && titleRef.current) {
@@ -107,34 +148,42 @@ const CinematicIntro = ({ onEnter }) => {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-600/30 rounded-full filter blur-[200px]" />
       </div>
 
-      <div className="relative z-10 text-center px-6">
-        <h1 
-          ref={titleRef}
-          className="font-serif text-7xl md:text-9xl lg:text-[12rem] font-light text-gold-400 tracking-[0.15em] mb-8"
-          style={{ 
-            textShadow: '0 0 80px rgba(212, 160, 18, 0.3)',
-            perspective: '1000px'
-          }}
-        >
-          Las Palmas
-        </h1>
-        
-        <p 
-          ref={subtitleRef}
-          className="font-sans text-sm md:text-base text-sand-300/60 tracking-[0.4em] uppercase mb-16 opacity-0"
-        >
-          Fine Mediterranean Dining
-        </p>
+      {isLoading && (
+        <div ref={loaderRef} className="relative z-10">
+          <Loader />
+        </div>
+      )}
 
-        <button
-          ref={buttonRef}
-          onClick={handleEnter}
-          className="group relative px-12 py-5 bg-transparent border border-gold-500/40 text-gold-400/80 font-sans text-xs uppercase tracking-[0.3em] overflow-hidden transition-all duration-700 hover:border-gold-500/80 hover:text-gold-400 opacity-0"
-        >
-          <span className="relative z-10">Enter Experience</span>
-          <div className="absolute inset-0 bg-gold-500/5 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
-        </button>
-      </div>
+      {!isLoading && (
+        <div ref={contentRef} className="relative z-10 text-center px-6" style={{ opacity: 0 }}>
+          <h1 
+            ref={titleRef}
+            className="font-serif text-7xl md:text-9xl lg:text-[12rem] font-light text-gold-400 tracking-[0.15em] mb-8"
+            style={{ 
+              textShadow: '0 0 80px rgba(212, 160, 18, 0.3)',
+              perspective: '1000px'
+            }}
+          >
+            Las Palmas
+          </h1>
+          
+          <p 
+            ref={subtitleRef}
+            className="font-sans text-sm md:text-base text-sand-300/60 tracking-[0.4em] uppercase mb-16 opacity-0"
+          >
+            Fine Mediterranean Dining
+          </p>
+
+          <button
+            ref={buttonRef}
+            onClick={handleEnter}
+            className="group relative px-12 py-5 bg-transparent border border-gold-500/40 text-gold-400/80 font-sans text-xs uppercase tracking-[0.3em] overflow-hidden transition-all duration-700 hover:border-gold-500/80 hover:text-gold-400 opacity-0"
+          >
+            <span className="relative z-10">Enter Experience</span>
+            <div className="absolute inset-0 bg-gold-500/5 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left" />
+          </button>
+        </div>
+      )}
 
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2">
         <p className="font-sans text-xs text-sand-300/30 tracking-[0.2em]">
