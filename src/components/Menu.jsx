@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useMemo } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import anime from 'animejs'
 import { useOwner } from '../App'
 
@@ -66,121 +66,10 @@ const dishDetails = {
   }
 }
 
-const Floating3DDish = ({ isHovered, category }) => {
-  const dishRef = useRef(null)
-  const animationRef = useRef(null)
-  
-  useEffect(() => {
-    if (!dishRef.current) return
-    
-    const animate = () => {
-      if (!dishRef.current) return
-      const time = Date.now() * 0.001
-      
-      const rotateY = isHovered 
-        ? Math.sin(time * 0.8) * 20 + time * 30 
-        : Math.sin(time * 0.3) * 10 + time * 15
-      
-      const translateY = Math.sin(time * 0.8) * 8
-      const scale = isHovered ? 1.15 : 1
-      
-      dishRef.current.style.transform = `
-        perspective(800px)
-        translateY(${translateY}px)
-        rotateY(${rotateY}deg)
-        rotateX(${Math.sin(time * 0.5) * 5}deg)
-        scale(${scale})
-      `
-      
-      animationRef.current = requestAnimationFrame(animate)
-    }
-    
-    animationRef.current = requestAnimationFrame(animate)
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current)
-      }
-    }
-  }, [isHovered])
-
-  const getDishStyle = () => {
-    const baseStyle = {
-      width: '80px',
-      height: '80px',
-      transformStyle: 'preserve-3d',
-      transition: 'filter 0.3s ease',
-      filter: isHovered ? 'drop-shadow(0 0 20px rgba(212, 160, 18, 0.6))' : 'drop-shadow(0 0 10px rgba(212, 160, 18, 0.3))'
-    }
-    
-    return baseStyle
-  }
-
-  const getCategoryIcon = () => {
-    switch(category) {
-      case 'Grills':
-        return (
-          <div ref={dishRef} style={getDishStyle()} className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 shadow-lg" />
-            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-amber-700 to-amber-900" />
-            <div className="absolute inset-4 flex items-center justify-center">
-              <div className="w-8 h-4 bg-gradient-to-r from-amber-800 to-amber-600 rounded-sm transform rotate-12" />
-            </div>
-          </div>
-        )
-      case 'Seafood':
-        return (
-          <div ref={dishRef} style={getDishStyle()} className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-slate-100 to-slate-300 shadow-lg" />
-            <div className="absolute inset-2 rounded-full bg-gradient-to-br from-blue-100 to-blue-200" />
-            <div className="absolute inset-4 flex items-center justify-center">
-              <div className="w-10 h-5 bg-gradient-to-r from-amber-200 to-amber-300 rounded-full transform -rotate-12" />
-            </div>
-          </div>
-        )
-      case 'Traditional':
-        return (
-          <div ref={dishRef} style={getDishStyle()} className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 shadow-lg" />
-            <div className="absolute inset-1 rounded-full bg-gradient-to-br from-amber-600 to-amber-800" style={{ clipPath: 'polygon(50% 0%, 100% 100%, 0% 100%)' }} />
-            <div className="absolute inset-3 flex items-center justify-center">
-              <div className="w-4 h-4 bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-full" />
-            </div>
-          </div>
-        )
-      case 'Desserts':
-        return (
-          <div ref={dishRef} style={getDishStyle()} className="relative">
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-14 h-6 bg-gradient-to-br from-amber-200 to-amber-400 rounded-sm shadow-lg" />
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 w-12 h-5 bg-gradient-to-br from-amber-600 to-amber-800 rounded-sm" />
-            <div className="absolute bottom-11 left-1/2 transform -translate-x-1/2 w-10 h-4 bg-gradient-to-br from-gold-400 to-gold-600 rounded-sm" />
-          </div>
-        )
-      default:
-        return (
-          <div ref={dishRef} style={getDishStyle()} className="relative">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 shadow-lg" />
-            <div className="absolute inset-3 rounded-full bg-dark-800" />
-          </div>
-        )
-    }
-  }
-
-  return (
-    <div className="absolute top-4 left-4 z-20 pointer-events-none">
-      {getCategoryIcon()}
-    </div>
-  )
-}
-
-const MenuCard = ({ item, delay }) => {
+const FlipMenuCard = ({ item, delay }) => {
   const cardRef = useRef(null)
-  const imageRef = useRef(null)
-  const [isActive, setIsActive] = useState(false)
   const [isRevealed, setIsRevealed] = useState(false)
-  const [showName, setShowName] = useState(false)
-  const [showDescription, setShowDescription] = useState(false)
-  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 })
+  const [isFlipped, setIsFlipped] = useState(false)
   const [isTouchDevice, setIsTouchDevice] = useState(false)
 
   const details = dishDetails[item.id] || {
@@ -201,8 +90,6 @@ const MenuCard = ({ item, delay }) => {
           if (entry.isIntersecting) {
             setTimeout(() => {
               setIsRevealed(true)
-              setTimeout(() => setShowName(true), 400)
-              setTimeout(() => setShowDescription(true), 800)
             }, delay)
             observer.unobserve(entry.target)
           }
@@ -218,199 +105,123 @@ const MenuCard = ({ item, delay }) => {
     return () => observer.disconnect()
   }, [delay])
 
-  const handleMouseMove = (e) => {
-    if (isTouchDevice || !imageRef.current) return
-    const rect = imageRef.current.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width
-    const y = (e.clientY - rect.top) / rect.height
-    
-    setMousePos({ x, y })
-    
-    const rotateY = (x - 0.5) * 15
-    const rotateX = (y - 0.5) * -15
-    
-    imageRef.current.style.transform = `perspective(1000px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(1.04) translateZ(40px)`
-  }
-
-  const handleMouseEnter = () => {
-    if (!isTouchDevice) {
-      setIsActive(true)
-    }
-  }
-
-  const handleMouseLeave = () => {
-    if (!isTouchDevice) {
-      setIsActive(false)
-      setMousePos({ x: 0.5, y: 0.5 })
-      if (imageRef.current) {
-        imageRef.current.style.transform = 'perspective(1000px) rotateY(0deg) rotateX(0deg) scale(1) translateZ(0px)'
-      }
-    }
-  }
-
   const handleClick = () => {
     if (isTouchDevice) {
-      setIsActive(prev => !prev)
+      setIsFlipped(prev => !prev)
     }
   }
 
   const image = menuImages[item.id] || item.image
   const poetic = poeticLines[item.id] || item.poetic || item.origin
 
-  const glowStyle = useMemo(() => ({
-    background: `radial-gradient(circle at ${mousePos.x * 100}% ${mousePos.y * 100}%, rgba(212, 160, 18, 0.3) 0%, transparent 50%)`,
-    opacity: isActive ? 1 : 0,
-    transition: 'opacity 0.3s ease'
-  }), [mousePos, isActive])
-
   return (
     <div
       ref={cardRef}
-      className="relative group cursor-pointer"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseMove={handleMouseMove}
+      className={`flip-card cursor-pointer ${isFlipped ? 'is-flipped' : ''} ${isRevealed ? 'opacity-100' : 'opacity-0 translate-y-12'}`}
+      style={{ 
+        height: '420px',
+        transition: 'opacity 1s ease, transform 1s ease'
+      }}
       onClick={handleClick}
     >
-      <div className={`relative overflow-hidden rounded-lg transition-all duration-1000 ${isRevealed ? 'opacity-100' : 'opacity-0 translate-y-12'}`}>
-        <div 
-          ref={imageRef}
-          className="relative aspect-[4/3] overflow-hidden transition-transform duration-500 ease-out"
-          style={{ transformStyle: 'preserve-3d' }}
-        >
+      <div className="flip-card-inner">
+        <div className="flip-card-front">
           {image && (
             <img 
               src={image} 
               alt={item.title}
-              className="w-full h-full object-cover transition-all duration-700"
-              style={{
-                filter: isActive ? 'brightness(0.85) contrast(1.1) saturate(1.1)' : 'brightness(0.95)',
-              }}
+              className="w-full h-full object-cover"
             />
           )}
           
-          <Floating3DDish isHovered={isActive} category={item.category} />
+          <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/50 to-transparent" />
           
-          <div 
-            className="absolute inset-0 pointer-events-none"
-            style={glowStyle}
-          />
+          <div className="absolute inset-0 border border-gold-500/20 rounded-xl pointer-events-none" />
           
-          <div 
-            className={`absolute inset-0 pointer-events-none transition-all duration-500 ${isActive ? 'opacity-100' : 'opacity-0'}`}
-            style={{
-              background: 'linear-gradient(120deg, transparent 30%, rgba(212,160,18,0.25) 50%, transparent 70%)',
-              animation: isActive ? 'sweep 1.5s ease-in-out' : 'none',
-            }}
-          />
+          <div className="absolute bottom-0 left-0 right-0 p-6">
+            <p className="text-gold-500/60 text-xs tracking-[0.3em] uppercase mb-2">
+              {item.category}
+            </p>
+            <h3 className="font-serif text-2xl md:text-3xl text-gold-400 mb-2"
+              style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}
+            >
+              {item.title}
+            </h3>
+            <p className="font-sans text-sand-300/40 text-xs tracking-widest uppercase">
+              {isTouchDevice ? 'Tap to discover' : 'Hover to discover'}
+            </p>
+          </div>
           
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/40 to-transparent opacity-80" />
-          
-          <div 
-            className="absolute inset-0 transition-opacity duration-500 pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse at center, transparent 40%, rgba(10,10,10,0.6) 100%)',
-              opacity: isActive ? 0.3 : 0.7,
-            }}
-          />
-          
-          <div 
-            className={`absolute inset-0 transition-all duration-700 pointer-events-none ${isActive ? 'opacity-100' : 'opacity-0'}`}
-            style={{
-              boxShadow: 'inset 0 0 80px rgba(212, 160, 18, 0.25)',
-            }}
-          />
+          <div className="absolute top-4 right-4">
+            <div className="bg-dark-900/80 backdrop-blur-sm rounded-full px-4 py-2 border border-gold-500/30">
+              <span className="text-gold-400 font-serif text-lg">{item.price}</span>
+            </div>
+          </div>
         </div>
-
-        <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8">
-          <p 
-            className={`text-gold-500/50 text-xs tracking-[0.3em] uppercase mb-2 transition-all duration-700 ${showName ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-            style={{ transitionDelay: '100ms' }}
-          >
-            {item.category}
-          </p>
+        
+        <div className="flip-card-back border border-gold-500/30">
+          <div className="absolute inset-0 bg-gradient-to-br from-dark-800/95 via-dark-900/98 to-dark-800/95" />
           
-          <h3 
-            className={`font-serif text-xl md:text-3xl lg:text-4xl text-gold-400 mb-2 md:mb-3 transition-all duration-700 ${showName ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-            style={{ 
-              textShadow: '0 2px 20px rgba(0,0,0,0.5)',
-              transitionDelay: '200ms'
-            }}
-          >
-            {item.title}
-          </h3>
-          
-          <div 
-            className={`overflow-hidden transition-all duration-700 ease-out ${isActive ? 'max-h-[450px] opacity-100' : 'max-h-0 opacity-0'}`}
-          >
-            <p className="font-sans text-sand-200/80 text-sm leading-relaxed mb-3">
+          <div className="relative h-full p-6 flex flex-col overflow-y-auto">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <p className="text-gold-500/60 text-xs tracking-[0.3em] uppercase mb-1">
+                  {item.category}
+                </p>
+                <h3 className="font-serif text-2xl text-gold-400">
+                  {item.title}
+                </h3>
+              </div>
+              <div className="bg-gold-500/20 rounded-full px-3 py-1.5 border border-gold-500/40">
+                <span className="text-gold-400 font-serif text-base">{item.price}</span>
+              </div>
+            </div>
+            
+            <p className="font-sans text-sand-200/80 text-sm leading-relaxed mb-4">
               {item.description}
             </p>
             
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="bg-dark-800/70 backdrop-blur-sm rounded-lg p-3 border border-gold-500/20 transform transition-transform duration-300 hover:scale-105">
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="bg-dark-700/50 rounded-lg p-3 border border-gold-500/20">
                 <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Calories</p>
                 <p className="text-sand-200 text-sm font-medium">{details.calories}</p>
               </div>
-              <div className="bg-dark-800/70 backdrop-blur-sm rounded-lg p-3 border border-gold-500/20 transform transition-transform duration-300 hover:scale-105">
+              <div className="bg-dark-700/50 rounded-lg p-3 border border-gold-500/20">
                 <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Prep Time</p>
                 <p className="text-sand-200 text-sm font-medium">{details.prepTime}</p>
               </div>
             </div>
             
-            <div className="bg-dark-800/70 backdrop-blur-sm rounded-lg p-3 mb-3 border border-gold-500/20">
+            <div className="bg-dark-700/50 rounded-lg p-3 mb-4 border border-gold-500/20">
               <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-2">Ingredients</p>
               <div className="flex flex-wrap gap-1.5">
-                {details.ingredients.map((ing, i) => (
+                {details.ingredients.slice(0, 4).map((ing, i) => (
                   <span 
                     key={i}
-                    className="text-sand-200/80 text-xs px-2 py-1 bg-gold-500/15 rounded-full border border-gold-500/20 transition-all duration-300 hover:bg-gold-500/25 hover:border-gold-500/40"
+                    className="text-sand-200/80 text-xs px-2 py-1 bg-gold-500/10 rounded-full border border-gold-500/20"
                   >
                     {ing}
                   </span>
                 ))}
+                {details.ingredients.length > 4 && (
+                  <span className="text-sand-300/50 text-xs px-2 py-1">
+                    +{details.ingredients.length - 4} more
+                  </span>
+                )}
               </div>
             </div>
             
-            <div className="bg-gradient-to-r from-gold-500/15 to-transparent rounded-lg p-3 border-l-2 border-gold-500/50">
-              <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Chef's Recommendation</p>
+            <div className="bg-gradient-to-r from-gold-500/10 to-transparent rounded-lg p-3 border-l-2 border-gold-500/50 mt-auto">
+              <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Chef's Note</p>
               <p className="text-sand-200/90 text-xs italic">{details.chefNote}</p>
             </div>
             
-            <p className="font-sans text-gold-500/60 text-xs italic tracking-wide mt-3">
+            <p className="font-sans text-gold-500/50 text-xs italic tracking-wide mt-3 text-center">
               "{poetic}"
             </p>
           </div>
-
-          <p 
-            className={`font-sans text-sand-300/30 text-xs tracking-widest uppercase mt-3 md:mt-4 transition-all duration-500 ${showDescription && !isActive ? 'opacity-100' : 'opacity-0'}`}
-          >
-            {isTouchDevice ? 'Tap to discover' : 'Hover to discover'}
-          </p>
-        </div>
-
-        <div 
-          className={`absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold-500/70 to-transparent transition-all duration-1000 ${isActive ? 'opacity-100' : 'opacity-0'}`}
-          style={{
-            transform: isActive ? 'translateX(0)' : 'translateX(-100%)',
-          }}
-        />
-        
-        <div 
-          className={`absolute top-4 right-4 transition-all duration-500 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`}
-        >
-          <div className="bg-dark-900/90 backdrop-blur-sm rounded-full px-4 py-2 border border-gold-500/40 shadow-lg shadow-gold-500/10">
-            <span className="text-gold-400 font-serif text-lg">{item.price}</span>
-          </div>
         </div>
       </div>
-      
-      <style>{`
-        @keyframes sweep {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
     </div>
   )
 }
@@ -508,9 +319,9 @@ const Menu = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
           {filteredItems.map((item, index) => (
-            <MenuCard
+            <FlipMenuCard
               key={item.id}
               item={item}
               delay={index * 150}
@@ -520,7 +331,7 @@ const Menu = () => {
         
         <div className="text-center mt-12 md:mt-20">
           <p className="font-sans text-sand-300/20 text-xs tracking-[0.3em] uppercase">
-            Each creation is prepared with intention
+            Hover over each dish to discover more
           </p>
         </div>
       </div>
