@@ -1,6 +1,7 @@
 import { useRef, useEffect } from 'react'
 import anime from 'animejs'
 import { useOwner } from '../App'
+import FloatingLines from './FloatingLines'
 
 const About = () => {
   const { siteData } = useOwner()
@@ -50,7 +51,22 @@ const About = () => {
       ref={sectionRef}
       className="relative py-32 md:py-40 px-6 md:px-16 lg:px-24 bg-dark-800 overflow-hidden z-10"
     >
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0" style={{ zIndex: 0 }}>
+        <FloatingLines 
+          enabledWaves={['top', 'middle', 'bottom']}
+          lineCount={[10, 15, 20]}
+          lineDistance={[8, 6, 4]}
+          bendRadius={5.0}
+          bendStrength={-0.5}
+          interactive={true}
+          parallax={true}
+          linesGradient={['#d4a012', '#c9a227', '#b8860b', '#8b6914', '#654321']}
+          animationSpeed={0.8}
+          mixBlendMode="screen"
+        />
+      </div>
+
+      <div className="absolute inset-0 opacity-10" style={{ zIndex: 1 }}>
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-gold-600/20 to-transparent" />
       </div>
 
@@ -58,10 +74,11 @@ const About = () => {
         className="absolute inset-0 pointer-events-none opacity-[0.02]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          zIndex: 2
         }}
       />
 
-      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 lg:gap-24 items-center">
+      <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 lg:gap-24 items-center relative" style={{ zIndex: 3 }}>
         <div ref={textRef}>
           <p className="reveal-text opacity-0 font-sans text-gold-500/50 text-xs tracking-[0.4em] uppercase mb-6">
             Our Story
