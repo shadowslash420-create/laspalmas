@@ -68,10 +68,20 @@ A cinematic, luxury digital experience for Las Palmas, a high-end restaurant in 
 - Section-aware lighting adapts to each area (hero, about, menu, etc.)
 - Supports the story without dominating the experience
 
-### Menu as Gallery
+### Cursor-Following 3D Interaction
+- Golden plate follows cursor smoothly with lerp movement
+- Floating wine glass and LP logo as ambient elements
+- Velocity-based tilt for realistic movement feel
+- Ambient particles add depth and atmosphere
+- All objects respond to both mouse and touch input
+
+### Interactive Menu Gallery
 - Each dish introduced with hover reveal
-- Story, ingredients, and origin shown on hover
-- Prices hidden initially, revealed after delay
+- Floating 3D dish icons with CSS-based spinning animations
+- Hover reveals ingredients, calories, prep time, and chef recommendations
+- Cursor-following glow effect on menu cards
+- 3D perspective tilt when hovering over dishes
+- Prices appear in elegant floating badges
 - Category filtering with elegant transitions
 
 ### Owner Mode
