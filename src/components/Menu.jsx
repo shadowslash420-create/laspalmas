@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 import anime from 'animejs'
 import { useOwner } from '../App'
 
@@ -66,200 +66,236 @@ const dishDetails = {
   }
 }
 
-const FlipMenuCard = ({ item, delay }) => {
-  const cardRef = useRef(null)
-  const [isRevealed, setIsRevealed] = useState(false)
-  const [isFlipped, setIsFlipped] = useState(false)
-  const [isTouchDevice, setIsTouchDevice] = useState(false)
+const BayWindowSlider = ({ items }) => {
+  const containerRef = useRef(null)
+  const [activeIndex, setActiveIndex] = useState(Math.floor(items.length / 2))
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [scrollLeft, setScrollLeft] = useState(0)
+  const [expandedCard, setExpandedCard] = useState(null)
 
-  const details = dishDetails[item.id] || {
+  const getCardStyle = (index) => {
+    const diff = index - activeIndex
+    const absD = Math.abs(diff)
+    
+    let translateX = diff * 280
+    let translateZ = -absD * 150
+    let rotateY = diff * -15
+    let scale = 1 - absD * 0.15
+    let opacity = 1 - absD * 0.3
+    let zIndex = 10 - absD
+    
+    if (absD > 2) {
+      opacity = 0
+      scale = 0.5
+    }
+    
+    return {
+      transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
+      opacity: Math.max(0, opacity),
+      zIndex,
+      transition: 'all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    }
+  }
+
+  const handleWheel = useCallback((e) => {
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      e.preventDefault()
+      if (e.deltaX > 30 && activeIndex < items.length - 1) {
+        setActiveIndex(prev => prev + 1)
+      } else if (e.deltaX < -30 && activeIndex > 0) {
+        setActiveIndex(prev => prev - 1)
+      }
+    }
+  }, [activeIndex, items.length])
+
+  const handleMouseDown = (e) => {
+    setIsDragging(true)
+    setStartX(e.pageX)
+    setScrollLeft(activeIndex)
+  }
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return
+    e.preventDefault()
+    const x = e.pageX
+    const walk = (startX - x) / 100
+    const newIndex = Math.round(scrollLeft + walk)
+    if (newIndex >= 0 && newIndex < items.length && newIndex !== activeIndex) {
+      setActiveIndex(newIndex)
+    }
+  }
+
+  const handleMouseUp = () => {
+    setIsDragging(false)
+  }
+
+  const handleTouchStart = (e) => {
+    setIsDragging(true)
+    setStartX(e.touches[0].pageX)
+    setScrollLeft(activeIndex)
+  }
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return
+    const x = e.touches[0].pageX
+    const walk = (startX - x) / 80
+    const newIndex = Math.round(scrollLeft + walk)
+    if (newIndex >= 0 && newIndex < items.length && newIndex !== activeIndex) {
+      setActiveIndex(newIndex)
+    }
+  }
+
+  const handleTouchEnd = () => {
+    setIsDragging(false)
+  }
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false })
+      return () => container.removeEventListener('wheel', handleWheel)
+    }
+  }, [handleWheel])
+
+  const handleCardClick = (index) => {
+    if (index === activeIndex) {
+      setExpandedCard(expandedCard === index ? null : index)
+    } else {
+      setActiveIndex(index)
+      setExpandedCard(null)
+    }
+  }
+
+  const currentItem = items[activeIndex]
+  const details = dishDetails[currentItem?.id] || {
     ingredients: ['Fresh ingredients'],
     calories: '450 kcal',
     chefNote: 'Prepared with care',
     prepTime: '30 min'
   }
 
-  useEffect(() => {
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
-  }, [])
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => {
-              setIsRevealed(true)
-            }, delay)
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.2 }
-    )
-
-    if (cardRef.current) {
-      observer.observe(cardRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [delay])
-
-  const handleClick = () => {
-    if (isTouchDevice) {
-      setIsFlipped(prev => !prev)
-    }
-  }
-
-  const image = menuImages[item.id] || item.image
-  const poetic = poeticLines[item.id] || item.poetic || item.origin
-
   return (
-    <div
-      ref={cardRef}
-      className={`flip-card ${isFlipped ? 'is-flipped' : ''}`}
-      style={{ 
-        height: '420px',
-        opacity: isRevealed ? 1 : 0,
-        transform: isRevealed ? 'translateY(0)' : 'translateY(48px)',
-        transition: 'opacity 1s ease, transform 1s ease'
-      }}
-      onClick={handleClick}
-    >
-      <div className="flip-card-inner">
-        <div className="flip-card-front">
-          {image && (
-            <img 
-              src={image} 
-              alt={item.title}
-              className="w-full h-full object-cover"
-            />
-          )}
-          
-          <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/50 to-transparent" />
-          <div className="absolute inset-0 border border-gold-500/20 rounded-xl pointer-events-none" />
-          
-          <div className="absolute bottom-0 left-0 right-0 p-6">
-            <p className="text-gold-500/60 text-xs tracking-[0.3em] uppercase mb-2">
-              {item.category}
-            </p>
-            <h3 className="font-serif text-2xl md:text-3xl text-gold-400 mb-2"
-              style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}
-            >
-              {item.title}
-            </h3>
-            <p className="font-sans text-sand-300/40 text-xs tracking-widest uppercase">
-              {isTouchDevice ? 'Tap to discover' : 'Hover to discover'}
-            </p>
-          </div>
-          
-          <div className="absolute top-4 right-4">
-            <div className="bg-dark-900/80 backdrop-blur-sm rounded-full px-4 py-2 border border-gold-500/30">
-              <span className="text-gold-400 font-serif text-lg">{item.price}</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="flip-card-back border border-gold-500/30">
-          <div className="absolute inset-0 bg-gradient-to-br from-dark-800/95 via-dark-900/98 to-dark-800/95" />
-          
-          <div className="relative h-full p-6 flex flex-col overflow-y-auto">
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-gold-500/60 text-xs tracking-[0.3em] uppercase mb-1">
-                  {item.category}
-                </p>
-                <h3 className="font-serif text-2xl text-gold-400">
-                  {item.title}
-                </h3>
-              </div>
-              <div className="bg-gold-500/20 rounded-full px-3 py-1.5 border border-gold-500/40">
-                <span className="text-gold-400 font-serif text-base">{item.price}</span>
-              </div>
-            </div>
+    <div className="bay-window-container">
+      <div
+        ref={containerRef}
+        className="bay-window-slider"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
+      >
+        <div className="bay-window-track">
+          {items.map((item, index) => {
+            const image = menuImages[item.id] || item.image
+            const poetic = poeticLines[item.id] || item.poetic || item.origin
+            const isActive = index === activeIndex
+            const isExpanded = expandedCard === index
             
-            <p className="font-sans text-sand-200/80 text-sm leading-relaxed mb-4">
-              {item.description}
-            </p>
-            
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-dark-700/50 rounded-lg p-3 border border-gold-500/20">
-                <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Calories</p>
-                <p className="text-sand-200 text-sm font-medium">{details.calories}</p>
+            return (
+              <div
+                key={item.id}
+                className={`bay-window-card ${isActive ? 'active' : ''} ${isExpanded ? 'expanded' : ''}`}
+                style={getCardStyle(index)}
+                onClick={() => handleCardClick(index)}
+              >
+                <div className="card-inner">
+                  <div className="card-image">
+                    {image && (
+                      <img 
+                        src={image} 
+                        alt={item.title}
+                        draggable={false}
+                      />
+                    )}
+                    <div className="card-overlay" />
+                    <div className="card-border" />
+                  </div>
+                  
+                  <div className="card-content">
+                    <p className="card-category">{item.category}</p>
+                    <h3 className="card-title">{item.title}</h3>
+                    {isActive && (
+                      <p className="card-hint">
+                        {isExpanded ? 'Tap to close' : 'Tap for details'}
+                      </p>
+                    )}
+                  </div>
+                  
+                  <div className="card-price">
+                    <span>{item.price}</span>
+                  </div>
+
+                  {isExpanded && isActive && (
+                    <div className="card-details">
+                      <p className="details-description">{item.description}</p>
+                      <div className="details-meta">
+                        <span>{details.calories}</span>
+                        <span className="divider">|</span>
+                        <span>{details.prepTime}</span>
+                      </div>
+                      <p className="details-note">"{poetic}"</p>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="bg-dark-700/50 rounded-lg p-3 border border-gold-500/20">
-                <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Prep Time</p>
-                <p className="text-sand-200 text-sm font-medium">{details.prepTime}</p>
-              </div>
-            </div>
-            
-            <div className="bg-dark-700/50 rounded-lg p-3 mb-4 border border-gold-500/20">
-              <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-2">Ingredients</p>
-              <div className="flex flex-wrap gap-1.5">
-                {details.ingredients.slice(0, 4).map((ing, i) => (
-                  <span 
-                    key={i}
-                    className="text-sand-200/80 text-xs px-2 py-1 bg-gold-500/10 rounded-full border border-gold-500/20"
-                  >
-                    {ing}
-                  </span>
-                ))}
-                {details.ingredients.length > 4 && (
-                  <span className="text-sand-300/50 text-xs px-2 py-1">
-                    +{details.ingredients.length - 4} more
-                  </span>
-                )}
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-gold-500/10 to-transparent rounded-lg p-3 border-l-2 border-gold-500/50 mt-auto">
-              <p className="text-gold-500/70 text-[10px] tracking-wider uppercase mb-1">Chef's Note</p>
-              <p className="text-sand-200/90 text-xs italic">{details.chefNote}</p>
-            </div>
-            
-            <p className="font-sans text-gold-500/50 text-xs italic tracking-wide mt-3 text-center">
-              "{poetic}"
-            </p>
-          </div>
+            )
+          })}
         </div>
       </div>
-    </div>
-  )
-}
 
-const CarouselCard = ({ item }) => {
-  const image = menuImages[item.id] || item.image
-  
-  return (
-    <div className="carousel-item">
-      <div className="relative h-48 rounded-lg overflow-hidden border border-gold-500/20">
-        {image && (
-          <img 
-            src={image} 
-            alt={item.title}
-            className="w-full h-full object-cover"
+      <div className="slider-nav">
+        {items.map((_, index) => (
+          <button
+            key={index}
+            className={`nav-dot ${index === activeIndex ? 'active' : ''}`}
+            onClick={() => {
+              setActiveIndex(index)
+              setExpandedCard(null)
+            }}
           />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          <p className="text-gold-500/60 text-[10px] tracking-[0.2em] uppercase mb-1">{item.category}</p>
-          <h4 className="font-serif text-lg text-gold-400">{item.title}</h4>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-const InfiniteCarousel = ({ items }) => {
-  const duplicatedItems = [...items, ...items]
-  
-  return (
-    <div className="overflow-hidden py-8">
-      <div className="infinite-carousel">
-        {duplicatedItems.map((item, index) => (
-          <CarouselCard key={`${item.id}-${index}`} item={item} />
         ))}
       </div>
+
+      <div className="slider-arrows">
+        <button
+          className="arrow-btn prev"
+          onClick={() => {
+            if (activeIndex > 0) {
+              setActiveIndex(activeIndex - 1)
+              setExpandedCard(null)
+            }
+          }}
+          disabled={activeIndex === 0}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          className="arrow-btn next"
+          onClick={() => {
+            if (activeIndex < items.length - 1) {
+              setActiveIndex(activeIndex + 1)
+              setExpandedCard(null)
+            }
+          }}
+          disabled={activeIndex === items.length - 1}
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <p className="scroll-hint">
+        <span className="hint-icon">↔</span>
+        Scroll or drag to explore
+      </p>
     </div>
   )
 }
@@ -355,26 +391,7 @@ const Menu = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {filteredItems.map((item, index) => (
-            <FlipMenuCard
-              key={item.id}
-              item={item}
-              delay={index * 150}
-            />
-          ))}
-        </div>
-        
-        <div className="text-center mt-16 md:mt-24">
-          <p className="font-sans text-sand-300/40 text-sm tracking-[0.2em] uppercase mb-2">
-            Where Every Detail Matters
-          </p>
-          <p className="font-serif text-gold-400/60 text-2xl md:text-3xl mb-8">
-            The Experience
-          </p>
-        </div>
-        
-        <InfiniteCarousel items={siteData.menuItems} />
+        <BayWindowSlider items={filteredItems} />
       </div>
     </section>
   )
