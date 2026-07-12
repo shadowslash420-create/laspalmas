@@ -34,34 +34,18 @@ const GoldenFork = ({ mouseRef }) => {
   useFrame((state, delta) => {
     if (!meshRef.current) return
     
-    targetPosition.current.x = mouseRef.current.x * 4
-    targetPosition.current.y = mouseRef.current.y * 3
-    
-    const lerpFactor = 0.05
-    const prevX = currentPosition.current.x
-    const prevY = currentPosition.current.y
-    
-    currentPosition.current.x += (targetPosition.current.x - currentPosition.current.x) * lerpFactor
-    currentPosition.current.y += (targetPosition.current.y - currentPosition.current.y) * lerpFactor
-    
-    velocity.current.x = currentPosition.current.x - prevX
-    velocity.current.y = currentPosition.current.y - prevY
-    
-    meshRef.current.position.x = currentPosition.current.x
-    meshRef.current.position.y = currentPosition.current.y + Math.sin(state.clock.elapsedTime * 0.8) * 0.15
+    // Snap directly to mouse — no lerp lag
+    const targetX = mouseRef.current.x * 4
+    const targetY = mouseRef.current.y * 3
+
+    meshRef.current.position.x = targetX
+    meshRef.current.position.y = targetY + Math.sin(state.clock.elapsedTime * 0.8) * 0.15
     meshRef.current.position.z = Math.sin(state.clock.elapsedTime * 0.5) * 0.3
-    
-    const targetRotationX = velocity.current.y * 10
-    const targetRotationY = -velocity.current.x * 10
-    const targetRotationZ = velocity.current.x * 4
-    
-    currentRotation.current.x += (targetRotationX - currentRotation.current.x) * 0.08
-    currentRotation.current.y += (targetRotationY - currentRotation.current.y) * 0.08
-    currentRotation.current.z += (targetRotationZ - currentRotation.current.z) * 0.06
-    
-    meshRef.current.rotation.x = currentRotation.current.x + state.clock.elapsedTime * 0.2
-    meshRef.current.rotation.y = currentRotation.current.y + state.clock.elapsedTime * 0.3
-    meshRef.current.rotation.z = currentRotation.current.z + Math.sin(state.clock.elapsedTime * 0.3) * 0.1
+
+    // Gentle ambient spin only — no velocity tilt since position is instant
+    meshRef.current.rotation.x = state.clock.elapsedTime * 0.2
+    meshRef.current.rotation.y = state.clock.elapsedTime * 0.3
+    meshRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.3) * 0.1
   })
 
   const goldMaterial = {
