@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react'
+import { useRef, useMemo, useState, useEffect } from 'react'
 import { useScrollProgress } from '../hooks/useScrollProgress.jsx'
 import { useOwner } from '../App'
 
@@ -6,6 +6,11 @@ const Scene3D = () => {
   const { scrollProgress, sectionProgress } = useScrollProgress()
   const { siteData } = useOwner()
   const containerRef = useRef(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768)
+  }, [])
 
   const sceneStyle = useMemo(() => {
     const baseOpacity = 0.25
@@ -91,15 +96,31 @@ const Scene3D = () => {
         className="absolute inset-0 will-change-transform"
         style={sceneStyle}
       >
-        <div className="absolute inset-[-20%] w-[140%] h-[140%]">
-          <iframe
-            title="3D Restaurant Scene"
-            className="w-full h-full"
-            style={{ border: 'none' }}
-            src={`https://sketchfab.com/models/${siteData.sketchfabModelId}/embed?autospin=0&autostart=1&preload=1&ui_animations=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&camera=0&scrollwheel=0&orbit_constraint_zoom_in=1&orbit_constraint_zoom_out=1&navigation=orbit&transparent=1&ui_hint=0`}
-            allow="autoplay; fullscreen; xr-spatial-tracking"
+        {/* Skip the Sketchfab iframe on mobile — it's a full WebGL app inside an
+            iframe and reliably crashes low-memory mobile browsers */}
+        {!isMobile && (
+          <div className="absolute inset-[-20%] w-[140%] h-[140%]">
+            <iframe
+              title="3D Restaurant Scene"
+              className="w-full h-full"
+              style={{ border: 'none' }}
+              src={`https://sketchfab.com/models/${siteData.sketchfabModelId}/embed?autospin=0&autostart=1&preload=1&ui_animations=0&ui_infos=0&ui_stop=0&ui_inspector=0&ui_watermark_link=0&ui_watermark=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&camera=0&scrollwheel=0&orbit_constraint_zoom_in=1&orbit_constraint_zoom_out=1&navigation=orbit&transparent=1&ui_hint=0`}
+              allow="autoplay; fullscreen; xr-spatial-tracking"
+            />
+          </div>
+        )}
+        {/* Mobile fallback: ambient glow that reacts to scroll */}
+        {isMobile && (
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `radial-gradient(ellipse at 50% 40%, 
+                hsla(35, 70%, 35%, ${0.12 + scrollProgress * 0.08}) 0%, 
+                hsla(25, 60%, 15%, 0.06) 50%, 
+                transparent 80%)`,
+            }}
           />
-        </div>
+        )}
       </div>
 
       <div 

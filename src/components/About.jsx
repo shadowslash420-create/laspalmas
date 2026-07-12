@@ -1,13 +1,24 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState, Component } from 'react'
 import anime from 'animejs'
 import { useOwner } from '../App'
 import FloatingLines from './FloatingLines'
+
+class SafeBoundary extends Component {
+  constructor(props) { super(props); this.state = { err: false } }
+  static getDerivedStateFromError() { return { err: true } }
+  render() { return this.state.err ? null : this.props.children }
+}
 
 const About = () => {
   const { siteData } = useOwner()
   const sectionRef = useRef(null)
   const textRef = useRef(null)
   const imageRef = useRef(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768)
+  }, [])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -51,20 +62,24 @@ const About = () => {
       ref={sectionRef}
       className="relative py-32 md:py-40 px-6 md:px-16 lg:px-24 bg-dark-800 overflow-hidden z-10"
     >
-      <div className="absolute inset-0" style={{ zIndex: 0 }}>
-        <FloatingLines 
-          enabledWaves={['top', 'middle', 'bottom']}
-          lineCount={[10, 15, 20]}
-          lineDistance={[8, 6, 4]}
-          bendRadius={5.0}
-          bendStrength={-0.5}
-          interactive={true}
-          parallax={true}
-          linesGradient={['#d4a012', '#c9a227', '#b8860b', '#8b6914', '#654321']}
-          animationSpeed={0.8}
-          mixBlendMode="screen"
-        />
-      </div>
+      {!isMobile && (
+        <div className="absolute inset-0" style={{ zIndex: 0 }}>
+          <SafeBoundary>
+            <FloatingLines 
+              enabledWaves={['top', 'middle', 'bottom']}
+              lineCount={[10, 15, 20]}
+              lineDistance={[8, 6, 4]}
+              bendRadius={5.0}
+              bendStrength={-0.5}
+              interactive={true}
+              parallax={true}
+              linesGradient={['#d4a012', '#c9a227', '#b8860b', '#8b6914', '#654321']}
+              animationSpeed={0.8}
+              mixBlendMode="screen"
+            />
+          </SafeBoundary>
+        </div>
+      )}
 
       <div className="absolute inset-0 opacity-10" style={{ zIndex: 1 }}>
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-gold-600/20 to-transparent" />

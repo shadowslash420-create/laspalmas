@@ -21,7 +21,8 @@ class WebGLErrorBoundary extends Component {
   }
 }
 
-const GoldenFork = ({ mousePosition }) => {
+// Reads mouse from R3F state.pointer — zero React re-renders on mouse move
+const GoldenFork = () => {
   const meshRef = useRef()
   const targetPosition = useRef({ x: 0, y: 0 })
   const currentPosition = useRef({ x: 0, y: 0 })
@@ -31,8 +32,9 @@ const GoldenFork = ({ mousePosition }) => {
   useFrame((state, delta) => {
     if (!meshRef.current) return
     
-    targetPosition.current.x = mousePosition.x * 4
-    targetPosition.current.y = mousePosition.y * 3
+    // state.pointer is updated by R3F every frame — no setState, no re-renders
+    targetPosition.current.x = state.pointer.x * 4
+    targetPosition.current.y = state.pointer.y * 3
     
     const lerpFactor = 0.05
     const prevX = currentPosition.current.x
@@ -102,7 +104,7 @@ const GoldenFork = ({ mousePosition }) => {
   )
 }
 
-const Scene = ({ mousePosition }) => {
+const Scene = () => {
   return (
     <>
       <ambientLight intensity={0.3} />
@@ -119,7 +121,7 @@ const Scene = ({ mousePosition }) => {
         color="#d4a012" 
       />
       
-      <GoldenFork mousePosition={mousePosition} />
+      <GoldenFork />
       
       <Environment preset="city" />
     </>
@@ -138,69 +140,55 @@ const isWebGLAvailable = () => {
   }
 }
 
+const isMobileDevice = () =>
+  typeof window !== 'undefined' && window.innerWidth < 768
+
 const Interactive3DObject = ({ className = '', style = {} }) => {
-  const containerRef = useRef(null)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [webglSupported, setWebglSupported] = useState(true)
-  
+  const [isMobile, setIsMobile] = useState(false)
+
   useEffect(() => {
     setWebglSupported(isWebGLAvailable())
+    setIsMobile(isMobileDevice())
   }, [])
-  
-  useEffect(() => {
-    const handleMouseMove = (event) => {
-      const normalizedX = (event.clientX / window.innerWidth) * 2 - 1
-      const normalizedY = -((event.clientY / window.innerHeight) * 2 - 1)
-      setMousePosition({ x: normalizedX, y: normalizedY })
-    }
-    
-    const handleTouchMove = (event) => {
-      if (!event.touches[0]) return
-      const touch = event.touches[0]
-      const normalizedX = (touch.clientX / window.innerWidth) * 2 - 1
-      const normalizedY = -((touch.clientY / window.innerHeight) * 2 - 1)
-      setMousePosition({ x: normalizedX, y: normalizedY })
-    }
-    
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('touchmove', handleTouchMove, { passive: true })
-    
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('touchmove', handleTouchMove)
-    }
-  }, [])
-  
-  if (!webglSupported) {
+
+  // Skip on mobile — saves a WebGL context and avoids pointer-events fighting scroll
+  if (!webglSupported || isMobile) {
     return null
   }
-  
+
   return (
-    <div 
-      ref={containerRef}
+    <div
       className={`${className}`}
-      style={{ 
-        touchAction: 'none',
+      style={{
         pointerEvents: 'none',
         ...style
       }}
     >
       <WebGLErrorBoundary fallback={null}>
+        {/* events="all" lets R3F track state.pointer on the window so the fork
+            follows the cursor even though the canvas itself is pointer-events:none */}
         <Canvas
           shadows
           camera={{ position: [0, 0, 6], fov: 50 }}
-          gl={{ 
+          events={{ enabled: true }}
+          gl={{
             antialias: true,
             alpha: true,
-            powerPreference: 'high-performance',
+            powerPreference: 'default',
             failIfMajorPerformanceCaveat: false
           }}
-          style={{ 
+          style={{
             background: 'transparent',
             pointerEvents: 'none'
           }}
+          onCreated={({ gl, events }) => {
+            // Attach pointer tracking to window so the invisible canvas still
+            // receives mouse coordinates from anywhere on the page
+            events.connect(window)
+          }}
         >
-          <Scene mousePosition={mousePosition} />
+          <Scene />
         </Canvas>
       </WebGLErrorBoundary>
     </div>
