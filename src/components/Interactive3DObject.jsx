@@ -21,8 +21,10 @@ class WebGLErrorBoundary extends Component {
   }
 }
 
-// Reads mouse from R3F state.pointer — zero React re-renders on mouse move
-const GoldenFork = () => {
+// mouseRef is a shared ref passed down from Interactive3DObject.
+// Updating a ref does NOT trigger React re-renders, so mouse tracking
+// is entirely outside React's reconciliation loop.
+const GoldenFork = ({ mouseRef }) => {
   const meshRef = useRef()
   const targetPosition = useRef({ x: 0, y: 0 })
   const currentPosition = useRef({ x: 0, y: 0 })
@@ -32,9 +34,8 @@ const GoldenFork = () => {
   useFrame((state, delta) => {
     if (!meshRef.current) return
     
-    // state.pointer is updated by R3F every frame — no setState, no re-renders
-    targetPosition.current.x = state.pointer.x * 4
-    targetPosition.current.y = state.pointer.y * 3
+    targetPosition.current.x = mouseRef.current.x * 4
+    targetPosition.current.y = mouseRef.current.y * 3
     
     const lerpFactor = 0.05
     const prevX = currentPosition.current.x
@@ -104,7 +105,7 @@ const GoldenFork = () => {
   )
 }
 
-const Scene = () => {
+const Scene = ({ mouseRef }) => {
   return (
     <>
       <ambientLight intensity={0.3} />
@@ -121,7 +122,7 @@ const Scene = () => {
         color="#d4a012" 
       />
       
-      <GoldenFork />
+      <GoldenFork mouseRef={mouseRef} />
       
       <Environment preset="city" />
     </>
@@ -146,13 +147,23 @@ const isMobileDevice = () =>
 const Interactive3DObject = ({ className = '', style = {} }) => {
   const [webglSupported, setWebglSupported] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  // Ref-based mouse position: updating a ref never triggers a React re-render,
+  // so every mousemove is zero-cost from React's perspective.
+  const mouseRef = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
     setWebglSupported(isWebGLAvailable())
     setIsMobile(isMobileDevice())
+
+    const onMouseMove = (e) => {
+      mouseRef.current.x = (e.clientX / window.innerWidth) * 2 - 1
+      mouseRef.current.y = -((e.clientY / window.innerHeight) * 2 - 1)
+    }
+    window.addEventListener('mousemove', onMouseMove, { passive: true })
+    return () => window.removeEventListener('mousemove', onMouseMove)
   }, [])
 
-  // Skip on mobile — saves a WebGL context and avoids pointer-events fighting scroll
+  // Skip on mobile — saves a WebGL context and avoids competing with scroll
   if (!webglSupported || isMobile) {
     return null
   }
@@ -166,12 +177,9 @@ const Interactive3DObject = ({ className = '', style = {} }) => {
       }}
     >
       <WebGLErrorBoundary fallback={null}>
-        {/* events="all" lets R3F track state.pointer on the window so the fork
-            follows the cursor even though the canvas itself is pointer-events:none */}
         <Canvas
           shadows
           camera={{ position: [0, 0, 6], fov: 50 }}
-          events={{ enabled: true }}
           gl={{
             antialias: true,
             alpha: true,
@@ -182,13 +190,8 @@ const Interactive3DObject = ({ className = '', style = {} }) => {
             background: 'transparent',
             pointerEvents: 'none'
           }}
-          onCreated={({ gl, events }) => {
-            // Attach pointer tracking to window so the invisible canvas still
-            // receives mouse coordinates from anywhere on the page
-            events.connect(window)
-          }}
         >
-          <Scene />
+          <Scene mouseRef={mouseRef} />
         </Canvas>
       </WebGLErrorBoundary>
     </div>
